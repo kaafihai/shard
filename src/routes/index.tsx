@@ -1,69 +1,75 @@
-import { createFileRoute, Link } from '@tanstack/react-router';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { CheckSquare, Tag, FolderOpen } from 'lucide-react';
+import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { useTasks } from "@/hooks/use-tasks";
+import { Button } from "@/components/ui/button";
+import type { TaskFilter } from "@/lib/types";
 
-export const Route = createFileRoute('/')({
-  component: HomeComponent,
+export const Route = createFileRoute("/")({
+  component: TasksComponent,
 });
 
-function HomeComponent() {
+function TasksComponent() {
+  const { data: tasks = [], isLoading } = useTasks();
+  const [filter, setFilter] = useState<TaskFilter>("all");
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "active") return !task.completed;
+    if (filter === "completed") return task.completed;
+    return true;
+  });
+
+  if (isLoading) {
+    return <div className="text-center">Loading tasks...</div>;
+  }
+
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Welcome to Task Tracker</h1>
-        <p className="text-muted-foreground text-lg">
-          A modern, efficient task management application built with Tauri and React
-        </p>
-        <Link to="/tasks">
-          <Button size="lg" className="mt-4">
-            Get Started
-          </Button>
-        </Link>
+    <div className="max-w-4xl mx-auto space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-3xl font-bold">My Tasks</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckSquare className="h-5 w-5" />
-              Task Management
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Create, organize, and track your tasks with ease. Mark tasks as complete and manage priorities.
-            </CardDescription>
-          </CardContent>
-        </Card>
+      <div className="flex gap-2">
+        <Button
+          variant={filter === "all" ? "default" : "ghost"}
+          onClick={() => setFilter("all")}
+        >
+          All ({tasks.length})
+        </Button>
+        <Button
+          variant={filter === "active" ? "default" : "ghost"}
+          onClick={() => setFilter("active")}
+        >
+          Active ({tasks.filter((t) => !t.completed).length})
+        </Button>
+        <Button
+          variant={filter === "completed" ? "default" : "ghost"}
+          onClick={() => setFilter("completed")}
+        >
+          Completed ({tasks.filter((t) => t.completed).length})
+        </Button>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FolderOpen className="h-5 w-5" />
-              Categories
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Organize tasks into custom categories with color coding for better visual organization.
-            </CardDescription>
-          </CardContent>
-        </Card>
+      {filteredTasks.length === 0 && (
+        <div className="text-center text-muted-foreground py-12">
+          No tasks found. Create your first task!
+        </div>
+      )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Tag className="h-5 w-5" />
-              Tags
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Tag your tasks for flexible filtering and grouping. Create tags on the fly as you need them.
-            </CardDescription>
-          </CardContent>
-        </Card>
+      <div className="space-y-3">
+        {filteredTasks.map((task) => (
+          <div key={task.id} className="p-4 border rounded-lg">
+            <h3
+              className={`font-semibold ${task.completed ? "line-through" : ""}`}
+            >
+              {task.title}
+            </h3>
+            {task.description && (
+              <p className="text-sm text-muted-foreground mt-1">
+                {task.description}
+              </p>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );
