@@ -1,6 +1,6 @@
-import { Outlet, createRootRoute, Link } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/router-devtools';
-
+import { Outlet, createRootRoute, Link } from "@tanstack/react-router";
+import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { BottomNavigation } from "@/components/bottom-navigation";
 export const Route = createRootRoute({
   component: RootComponent,
 });
@@ -8,18 +8,15 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
-      <div className="min-h-screen bg-background">
-        <nav className="border-b">
+      <div className="min-h-screen bg-background pb-24">
+        <nav>
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <Link to="/" className="text-2xl font-bold hover:text-primary/80">
-                Task Tracker
-              </Link>
               <Link
-                to="/tasks"
-                className="text-sm font-medium hover:text-primary/80"
+                to="/"
+                className="text-2xl font-black hover:text-primary/80"
               >
-                My Tasks
+                shard
               </Link>
             </div>
           </div>
@@ -28,6 +25,7 @@ function RootComponent() {
           <Outlet />
         </main>
       </div>
+      <BottomNavigation />
       <TanStackRouterDevtools position="bottom-right" />
     </>
   );
