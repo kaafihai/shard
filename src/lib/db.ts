@@ -489,3 +489,117 @@ export async function createMood(mood: Mood): Promise<Mood> {
 
   return mood;
 }
+
+export async function getMoodByDate(date: Date): Promise<Mood | null> {
+  const database = await getDb();
+
+  const dayStart = new Date(date);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayStartIso = dayStart.toISOString();
+
+  const dayEnd = new Date(date);
+  dayEnd.setHours(23, 59, 59, 999);
+  const dayEndIso = dayEnd.toISOString();
+
+  const moods = await database.select<
+    Array<{
+      id: string;
+      mood: string;
+      note: string | null;
+      created_at: string;
+    }>
+  >(
+    `SELECT * FROM moods WHERE created_at >= $1 AND created_at <= $2 ORDER BY created_at DESC LIMIT 1`,
+    [dayStartIso, dayEndIso]
+  );
+
+  if (moods.length === 0) {
+    return null;
+  }
+
+  const mood = moods[0];
+  return {
+    id: mood.id,
+    mood: mood.mood as "great" | "good" | "okay" | "bad" | "terrible",
+    note: mood.note || undefined,
+    createdAt: mood.created_at,
+  };
+}
+
+export async function getTasksByDate(date: Date): Promise<TaskWithCategoryAndTags[]> {
+  const database = await getDb();
+
+  const dayStart = new Date(date);
+  dayStart.setHours(0, 0, 0, 0);
+  const dayStartIso = dayStart.toISOString();
+
+  const dayEnd = new Date(date);
+  dayEnd.setHours(23, 59, 59, 999);
+  const dayEndIso = dayEnd.toISOString();
+
+  // Get tasks created or due on this date
+  const tasks = await database.select<
+    Array<{
+      id: string;
+      title: string;
+      description: string;
+      completed: number;
+      priority: string;
+      category: string | null;
+      created_at: string;
+      updated_at: string;
+      due_date: string | null;
+      category_name: string | null;
+      category_color: string | null;
+    }>
+  >(`
+    SELECT
+      t.id,
+      t.title,
+      t.description,
+      t.completed,
+      t.priority,
+      t.category,
+      t.created_at,
+      t.updated_at,
+      t.due_date,
+      c.name as category_name,
+      c.color as category_color
+    FROM tasks t
+    LEFT JOIN categories c ON t.category = c.id
+    WHERE (t.created_at >= $1 AND t.created_at <= $2)
+       OR (t.due_date >= $1 AND t.due_date <= $2)
+    ORDER BY t.created_at DESC
+  `, [dayStartIso, dayEndIso]);
+
+  const tasksWithTags: TaskWithCategoryAndTags[] = [];
+
+  for (const task of tasks) {
+    const tags = await database.select<Array<{ name: string }>>(
+      `
+      SELECT tg.name
+      FROM task_tags tt
+      JOIN tags tg ON tt.tag_id = tg.id
+      WHERE tt.task_id = $1
+    `,
+      [task.id],
+    );
+
+    tasksWithTags.push({
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      completed: task.completed === 1,
+      priority: task.priority as "Low" | "Medium" | "High",
+      category: task.category || undefined,
+      tags: tags.map((t) => t.name),
+      createdAt: task.created_at,
+      updatedAt: task.updated_at,
+      dueDate: task.due_date || undefined,
+      categoryName: task.category_name || undefined,
+      categoryColor: task.category_color || undefined,
+    });
+  }
+
+  return tasksWithTags;
+}

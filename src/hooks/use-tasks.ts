@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type { Task, TaskInput, TaskWithCategoryAndTags } from '@/lib/types';
 import {
   getTasks,
+  getTasksByDate,
   createTask as createTaskDb,
   updateTask as updateTaskDb,
   deleteTask as deleteTaskDb,
@@ -10,6 +11,7 @@ import {
 } from '@/lib/db';
 
 const TASKS_QUERY_KEY = ['tasks'];
+const TASKS_BY_DATE_QUERY_KEY = ['tasks', 'date'];
 
 // Initialize database on first hook use
 let dbInitialized = false;
@@ -27,6 +29,16 @@ export function useTasks() {
     queryFn: async () => {
       await ensureDbInitialized();
       return getTasks();
+    },
+  });
+}
+
+export function useTasksByDate(date: Date) {
+  return useQuery({
+    queryKey: [...TASKS_BY_DATE_QUERY_KEY, date.toISOString()],
+    queryFn: async () => {
+      await ensureDbInitialized();
+      return getTasksByDate(date);
     },
   });
 }
