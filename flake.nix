@@ -19,9 +19,11 @@
         config.android_sdk.accept_license = true;
       };
 
+      build_tools_version = "35.0.0";
       android_sdk =
         (pkgs.androidenv.composeAndroidPackages {
-          platformVersions = ["34"];
+          platformVersions = ["36"];
+          buildToolsVersions = [build_tools_version];
           ndkVersions = ["26.3.11579264"];
           includeNDK = true;
           useGoogleAPIs = false;
@@ -75,7 +77,7 @@
         XDG_DATA_DIRS = "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:$XDG_DATA_DIRS";
         ANDROID_HOME = "${android_sdk}/libexec/android-sdk";
         NDK_HOME = "${android_sdk}/libexec/android-sdk/ndk/26.3.11579264";
-        GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android_sdk}/libexec/android-sdk/build-tools/34.0.0/aapt2";
+        GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android_sdk}/libexec/android-sdk/build-tools/${build_tools_version}/aapt2";
       };
     });
 }

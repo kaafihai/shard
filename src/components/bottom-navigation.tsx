@@ -5,8 +5,6 @@ import {
   GearSixIcon,
   GridFourIcon,
   CheckCircleIcon,
-  NotePencilIcon,
-  TagIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -14,8 +12,6 @@ import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuItemLink,
 } from "./ui/dropdown-menu";
 

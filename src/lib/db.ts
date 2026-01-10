@@ -132,7 +132,7 @@ export async function getTasks(): Promise<TaskWithCategoryAndTags[]> {
       title: task.title,
       description: task.description,
       completed: task.completed === 1,
-      priority: task.priority as "low" | "medium" | "high",
+      priority: task.priority as "Low" | "Medium" | "High",
       category: task.category || undefined,
       tags: tags.map((t) => t.name),
       createdAt: task.created_at,
