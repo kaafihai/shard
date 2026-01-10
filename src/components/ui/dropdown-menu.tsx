@@ -3,6 +3,7 @@ import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 
 import { cn } from "@/lib/utils";
 import { CaretRightIcon, CheckIcon } from "@phosphor-icons/react";
+import { createLink } from "@tanstack/react-router";
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
@@ -73,6 +74,8 @@ function DropdownMenuLabel({
     />
   );
 }
+
+export const DropdownMenuItemLink = createLink(DropdownMenuItem);
 
 function DropdownMenuItem({
   className,

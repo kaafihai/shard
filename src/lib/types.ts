@@ -3,7 +3,7 @@ export interface Task {
   title: string;
   description: string;
   completed: boolean;
-  priority: 'low' | 'medium' | 'high';
+  priority: "Low" | "Medium" | "High";
   category?: string;
   tags: string[];
   createdAt: string;
@@ -24,9 +24,9 @@ export interface Tag {
   createdAt: string;
 }
 
-export type TaskInput = Omit<Task, 'id' | 'createdAt' | 'updatedAt'>;
+export type TaskInput = Omit<Task, "id" | "createdAt" | "updatedAt">;
 
-export type TaskFilter = 'all' | 'active' | 'completed';
+export type TaskFilter = "all" | "active" | "completed";
 
 export interface CategoryInput {
   name: string;

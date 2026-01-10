@@ -16,6 +16,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuItemLink,
 } from "./ui/dropdown-menu";
 
 interface NavItem {
@@ -37,7 +38,7 @@ export function BottomNavigation() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background border-t border-border">
-      <div className="max-w-md mx-auto px-4 py-3">
+      <div className="max-w-4xl mx-auto px-4 py-3">
         <div className="flex items-center justify-around relative">
           {navItems.slice(0, 2).map((item) => (
             <NavLink
@@ -60,19 +61,14 @@ export function BottomNavigation() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent side="top" align="center" className="mb-2">
-              <DropdownMenuItem>
+              <DropdownMenuItemLink to="/tasks/new">
                 <CheckCircleIcon />
                 <span>New Task</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
+              </DropdownMenuItemLink>
+              <DropdownMenuItemLink to="/calendar">
                 <CalendarIcon />
                 <span>New Event</span>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <TagIcon />
-                <span>New Category</span>
-              </DropdownMenuItem>
+              </DropdownMenuItemLink>
             </DropdownMenuContent>
           </DropdownMenu>
 

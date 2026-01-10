@@ -1,8 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useState } from "react";
 import { useTasks } from "@/hooks/use-tasks";
 import { Button } from "@/components/ui/button";
 import type { TaskFilter } from "@/lib/types";
+import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/")({
   component: TasksComponent,
@@ -19,11 +20,15 @@ function TasksComponent() {
   });
 
   if (isLoading) {
-    return <div className="text-center">Loading tasks...</div>;
+    return (
+      <div className="flex justify-center">
+        <Spinner />
+      </div>
+    );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold">My Tasks</h2>
       </div>
@@ -71,6 +76,7 @@ function TasksComponent() {
           </div>
         ))}
       </div>
+      <Outlet />
     </div>
   );
 }

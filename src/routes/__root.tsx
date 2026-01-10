@@ -1,7 +1,6 @@
 import { Outlet, createRootRoute, Link } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/router-devtools";
 import { BottomNavigation } from "@/components/bottom-navigation";
-
 export const Route = createRootRoute({
   component: RootComponent,
 });

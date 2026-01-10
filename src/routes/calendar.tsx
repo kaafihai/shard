@@ -1,20 +1,21 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { Calendar as CalendarIcon } from 'lucide-react';
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "@phosphor-icons/react/dist/ssr";
+import { createFileRoute } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/calendar')({
-  component: CalendarComponent,
+export const Route = createFileRoute("/calendar")({
+  component: CalendarPage,
 });
 
-function CalendarComponent() {
+function CalendarPage() {
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       <div className="flex items-center gap-3">
-        <CalendarIcon className="h-8 w-8 text-primary" />
+        <CalendarIcon className="size-8" />
         <h2 className="text-3xl font-bold">Calendar</h2>
       </div>
-      <div className="text-center text-muted-foreground py-12">
-        <p>Calendar view coming soon...</p>
-      </div>
+      <section className="size-full">
+        <Calendar className="w-full" />
+      </section>
     </div>
   );
 }
