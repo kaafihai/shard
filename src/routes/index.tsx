@@ -1,6 +1,7 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { useTasks } from "@/hooks/use-tasks";
+import { useTodaysMood } from "@/hooks/use-moods";
 import { Button } from "@/components/ui/button";
 import type { TaskFilter } from "@/lib/types";
 import { Spinner } from "@/components/ui/spinner";
@@ -10,8 +11,23 @@ export const Route = createFileRoute("/")({
 });
 
 function TasksComponent() {
+  const navigate = useNavigate();
   const { data: tasks = [], isLoading } = useTasks();
+  const { data: todaysMood, isLoading: isMoodLoading } = useTodaysMood();
   const [filter, setFilter] = useState<TaskFilter>("all");
+  const [hasCheckedMood, setHasCheckedMood] = useState(false);
+
+  useEffect(() => {
+    // Check if we need to show mood tracker
+    if (!isMoodLoading && !hasCheckedMood) {
+      setHasCheckedMood(true);
+
+      // If no mood tracked today, redirect to mood tracker
+      if (todaysMood === null) {
+        navigate({ to: "/mood/track" });
+      }
+    }
+  }, [todaysMood, isMoodLoading, hasCheckedMood, navigate]);
 
   const filteredTasks = tasks.filter((task) => {
     if (filter === "active") return !task.completed;

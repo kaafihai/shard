@@ -37,3 +37,12 @@ export interface TaskWithCategoryAndTags extends Task {
   categoryName?: string;
   categoryColor?: string;
 }
+
+export interface Mood {
+  id: string;
+  mood: "great" | "good" | "okay" | "bad" | "terrible";
+  note?: string;
+  createdAt: string;
+}
+
+export type MoodInput = Omit<Mood, "id" | "createdAt">;

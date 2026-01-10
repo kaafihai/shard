@@ -1,5 +1,5 @@
 import Database from "@tauri-apps/plugin-sql";
-import type { Task, Category, Tag, TaskWithCategoryAndTags } from "./types";
+import type { Task, Category, Tag, TaskWithCategoryAndTags, Mood } from "./types";
 
 let db: Database | null = null;
 
@@ -50,6 +50,16 @@ export async function initDatabase(): Promise<Database> {
       id TEXT PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
       color TEXT NOT NULL DEFAULT '#6b7280',
+      created_at TEXT NOT NULL
+    );
+  `);
+
+  // Create moods table
+  await db.execute(`
+    CREATE TABLE IF NOT EXISTS moods (
+      id TEXT PRIMARY KEY,
+      mood TEXT NOT NULL,
+      note TEXT,
       created_at TEXT NOT NULL
     );
   `);
@@ -409,4 +419,73 @@ async function findOrCreateTag(tagName: string): Promise<string> {
   await createTag(tag);
 
   return tagId;
+}
+
+// MOOD OPERATIONS
+
+export async function getTodaysMood(): Promise<Mood | null> {
+  const database = await getDb();
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayIso = today.toISOString();
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowIso = tomorrow.toISOString();
+
+  const moods = await database.select<
+    Array<{
+      id: string;
+      mood: string;
+      note: string | null;
+      created_at: string;
+    }>
+  >(
+    `SELECT * FROM moods WHERE created_at >= $1 AND created_at < $2 ORDER BY created_at DESC LIMIT 1`,
+    [todayIso, tomorrowIso]
+  );
+
+  if (moods.length === 0) {
+    return null;
+  }
+
+  const mood = moods[0];
+  return {
+    id: mood.id,
+    mood: mood.mood as "great" | "good" | "okay" | "bad" | "terrible",
+    note: mood.note || undefined,
+    createdAt: mood.created_at,
+  };
+}
+
+export async function getMoods(limit = 30): Promise<Mood[]> {
+  const database = await getDb();
+
+  const moods = await database.select<
+    Array<{
+      id: string;
+      mood: string;
+      note: string | null;
+      created_at: string;
+    }>
+  >(`SELECT * FROM moods ORDER BY created_at DESC LIMIT $1`, [limit]);
+
+  return moods.map((m) => ({
+    id: m.id,
+    mood: m.mood as "great" | "good" | "okay" | "bad" | "terrible",
+    note: m.note || undefined,
+    createdAt: m.created_at,
+  }));
+}
+
+export async function createMood(mood: Mood): Promise<Mood> {
+  const database = await getDb();
+
+  await database.execute(
+    `INSERT INTO moods (id, mood, note, created_at) VALUES ($1, $2, $3, $4)`,
+    [mood.id, mood.mood, mood.note || null, mood.createdAt]
+  );
+
+  return mood;
 }

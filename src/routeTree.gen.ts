@@ -14,6 +14,7 @@ import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TasksNewRouteImport } from './routes/tasks.new'
+import { Route as MoodTrackRouteImport } from './routes/mood.track'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -40,12 +41,18 @@ const TasksNewRoute = TasksNewRouteImport.update({
   path: '/tasks/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MoodTrackRoute = MoodTrackRouteImport.update({
+  id: '/mood/track',
+  path: '/mood/track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRoute
   '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
+  '/mood/track': typeof MoodTrackRoute
   '/tasks/new': typeof TasksNewRoute
 }
 export interface FileRoutesByTo {
@@ -53,6 +60,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
+  '/mood/track': typeof MoodTrackRoute
   '/tasks/new': typeof TasksNewRoute
 }
 export interface FileRoutesById {
@@ -61,19 +69,33 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/categories': typeof CategoriesRoute
   '/settings': typeof SettingsRoute
+  '/mood/track': typeof MoodTrackRoute
   '/tasks/new': typeof TasksNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/calendar' | '/categories' | '/settings' | '/tasks/new'
+  fullPaths:
+    | '/'
+    | '/calendar'
+    | '/categories'
+    | '/settings'
+    | '/mood/track'
+    | '/tasks/new'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/calendar' | '/categories' | '/settings' | '/tasks/new'
+  to:
+    | '/'
+    | '/calendar'
+    | '/categories'
+    | '/settings'
+    | '/mood/track'
+    | '/tasks/new'
   id:
     | '__root__'
     | '/'
     | '/calendar'
     | '/categories'
     | '/settings'
+    | '/mood/track'
     | '/tasks/new'
   fileRoutesById: FileRoutesById
 }
@@ -82,6 +104,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   CategoriesRoute: typeof CategoriesRoute
   SettingsRoute: typeof SettingsRoute
+  MoodTrackRoute: typeof MoodTrackRoute
   TasksNewRoute: typeof TasksNewRoute
 }
 
@@ -122,6 +145,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TasksNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mood/track': {
+      id: '/mood/track'
+      path: '/mood/track'
+      fullPath: '/mood/track'
+      preLoaderRoute: typeof MoodTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -130,6 +160,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   CategoriesRoute: CategoriesRoute,
   SettingsRoute: SettingsRoute,
+  MoodTrackRoute: MoodTrackRoute,
   TasksNewRoute: TasksNewRoute,
 }
 export const routeTree = rootRouteImport
