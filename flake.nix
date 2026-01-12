@@ -1,4 +1,13 @@
 {
+  nixConfig = {
+    extra-substituters =
+      [ "https://cache.nixos.org" "https://nix-community.cachix.org" ];
+    trusted-public-keys = [
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+    ];
+  };
+
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -6,18 +15,14 @@
     fenix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    fenix,
-  }:
-    flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {
-        system = system;
-        config.allowUnfree = true;
-        config.android_sdk.accept_license = true;
-      };
+  outputs = { self, nixpkgs, flake-utils, fenix, }:
+    flake-utils.lib.eachDefaultSystem (system:
+      let
+        pkgs = import nixpkgs {
+          system = system;
+          config.allowUnfree = true;
+          config.android_sdk.accept_license = true;
+        };
 
       build_tools_version = "35.0.0";
       android_sdk =
@@ -31,53 +36,55 @@
           includeEmulator = false;
           includeSystemImages = false;
           includeSources = false;
-        })
-        .androidsdk;
+        }).androidsdk;
 
-      packages = with pkgs; [
-        curl
-        wget
-        pkg-config
+        packages = with pkgs; [
+          curl
+          wget
+          pkg-config
+          nodejs_20
+          pnpm
+          typescript-language-server
 
-        nodejs_20
-        typescript-language-server
+          (with fenix.packages.${system};
+            combine [
+              complete.rustc
+              complete.cargo
+              complete.clippy
+              targets.aarch64-linux-android.latest.rust-std
+              targets.armv7-linux-androideabi.latest.rust-std
+              targets.i686-linux-android.latest.rust-std
+              targets.x86_64-linux-android.latest.rust-std
+            ])
+          rust-analyzer
 
-        (with fenix.packages.${system};
-          combine [
-            complete.rustc
-            complete.cargo
-            complete.clippy
-            targets.aarch64-linux-android.latest.rust-std
-            targets.armv7-linux-androideabi.latest.rust-std
-            targets.i686-linux-android.latest.rust-std
-            targets.x86_64-linux-android.latest.rust-std
-          ])
-        rust-analyzer
+          android_sdk
+          jdk
+        ];
 
-        android_sdk
-        jdk
-      ];
+        libraries = with pkgs; [
+          gtk3
+          libsoup_3
+          webkitgtk_4_1
+          cairo
+          gdk-pixbuf
+          glib
+          dbus
+          # openssl_3
+          librsvg
+        ];
+      in {
+        devShell = pkgs.mkShell {
+          buildInputs = packages ++ libraries;
 
-      libraries = with pkgs; [
-        gtk3
-        libsoup_3
-        webkitgtk_4_1
-        cairo
-        gdk-pixbuf
-        glib
-        dbus
-        # openssl_3
-        librsvg
-      ];
-    in {
-      devShell = pkgs.mkShell {
-        buildInputs = packages ++ libraries;
-
-        LD_LIBRARY_PATH = "${pkgs.lib.makeLibraryPath libraries}:$LD_LIBRARY_PATH";
-        XDG_DATA_DIRS = "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:$XDG_DATA_DIRS";
-        ANDROID_HOME = "${android_sdk}/libexec/android-sdk";
-        NDK_HOME = "${android_sdk}/libexec/android-sdk/ndk/26.3.11579264";
-        GRADLE_OPTS = "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android_sdk}/libexec/android-sdk/build-tools/${build_tools_version}/aapt2";
-      };
-    });
+          LD_LIBRARY_PATH =
+            "${pkgs.lib.makeLibraryPath libraries}:$LD_LIBRARY_PATH";
+          XDG_DATA_DIRS =
+            "${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}:${pkgs.gtk3}/share/gsettings-schemas/${pkgs.gtk3.name}:$XDG_DATA_DIRS";
+          ANDROID_HOME = "${android_sdk}/libexec/android-sdk";
+          NDK_HOME = "${android_sdk}/libexec/android-sdk/ndk/26.3.11579264";
+          GRADLE_OPTS =
+            "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android_sdk}/libexec/android-sdk/build-tools/34.0.0/aapt2";
+        };
+      });
 }

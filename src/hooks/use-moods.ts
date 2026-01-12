@@ -4,12 +4,14 @@ import type { Mood, MoodInput } from "@/lib/types";
 import {
   getTodaysMood,
   getMoods,
+  getMoodByDate,
   createMood as createMoodDb,
   initDatabase,
 } from "@/lib/db";
 
 const MOODS_QUERY_KEY = ["moods"];
 const TODAY_MOOD_QUERY_KEY = ["moods", "today"];
+const MOOD_BY_DATE_QUERY_KEY = ["moods", "date"];
 
 // Initialize database on first hook use
 let dbInitialized = false;
@@ -37,6 +39,16 @@ export function useMoods(limit = 30) {
     queryFn: async () => {
       await ensureDbInitialized();
       return getMoods(limit);
+    },
+  });
+}
+
+export function useMoodByDate(date: Date) {
+  return useQuery({
+    queryKey: [...MOOD_BY_DATE_QUERY_KEY, date.toISOString()],
+    queryFn: async () => {
+      await ensureDbInitialized();
+      return getMoodByDate(date);
     },
   });
 }
