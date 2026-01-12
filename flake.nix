@@ -45,6 +45,7 @@
           nodejs_20
           pnpm
           typescript-language-server
+          xdg-utils
 
           (with fenix.packages.${system};
             combine [
@@ -84,7 +85,7 @@
           ANDROID_HOME = "${android_sdk}/libexec/android-sdk";
           NDK_HOME = "${android_sdk}/libexec/android-sdk/ndk/26.3.11579264";
           GRADLE_OPTS =
-            "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android_sdk}/libexec/android-sdk/build-tools/34.0.0/aapt2";
+            "-Dorg.gradle.project.android.aapt2FromMavenOverride=${android_sdk}/libexec/android-sdk/build-tools/${build_tools_version}/aapt2";
         };
       });
 }
