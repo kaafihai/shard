@@ -17,13 +17,13 @@ keytool -genkey -v -keystore ./src-tauri/gen/android/local-keystore.jks -keyalg 
 
 cp src-tauri/gen/android/key.properties{.sample,}
 
-# edit the password field here:
+# edit the password & keyAlias fields here:
 $EDITOR src-tauri/gen/android/key.properties
 ```
 
 
 ### Building
 
-```
 pnpm run tauri android build
+```
 ```
