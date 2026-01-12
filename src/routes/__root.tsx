@@ -1,5 +1,5 @@
 import { Outlet, createRootRoute, Link } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/router-devtools";
+import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { BottomNavigation } from "@/components/bottom-navigation";
 import shardIcon from "/icon.svg";
 
