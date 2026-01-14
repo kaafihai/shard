@@ -24,7 +24,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: "/", icon: CheckCircleIcon, label: "Tasks" },
   { to: "/calendar", icon: CalendarIcon, label: "Calendar" },
-  { to: "/categories", icon: GridFourIcon, label: "Categories" },
   { to: "/settings", icon: GearSixIcon, label: "Settings" },
 ];
 

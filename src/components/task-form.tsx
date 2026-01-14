@@ -3,14 +3,6 @@ import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
 import type { TaskInput } from "@/lib/types";
 import { useCreateTask } from "@/hooks/use-tasks";
 import { useNavigate } from "@tanstack/react-router";
@@ -26,9 +18,8 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
   const [formData, setFormData] = useState<TaskInput>({
     title: "",
     description: "",
-    completed: false,
-    priority: "Medium",
-    tags: [],
+    dueDate: null,
+    completedAt: null,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,27 +66,18 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="priority">Priority</Label>
-        <Select
-          value={formData.priority}
-          onValueChange={(value) =>
+        <Label htmlFor="dueDate">Due Date</Label>
+        <Input
+          id="dueDate"
+          type="date"
+          value={formData.dueDate || ""}
+          onChange={(e) =>
             setFormData({
               ...formData,
-              priority: value as "Low" | "Medium" | "High",
+              dueDate: e.target.value || null,
             })
           }
-        >
-          <SelectTrigger id="priority" className="w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectItem value="Low">Low</SelectItem>
-              <SelectItem value="Medium">Medium</SelectItem>
-              <SelectItem value="High">High</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+        />
       </div>
 
       <div className="flex gap-2 pt-4">

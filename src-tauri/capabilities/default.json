@@ -9,6 +9,9 @@
     "core:default",
     "opener:default",
     "fs:allow-resource-read-recursive",
-    "fs:default"
+    "fs:default",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:default"
   ]
 }

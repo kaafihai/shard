@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMoodByDate } from "@/hooks/use-moods";
-import { useTasksByDate } from "@/hooks/use-tasks";
+import { useTasksByCompletedAt } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import {
@@ -17,7 +17,7 @@ import {
   SmileyWinkIcon,
   CheckCircleIcon,
 } from "@phosphor-icons/react";
-import { Badge } from "@/components/ui/badge";
+import type { Task } from "@/lib/types";
 
 export const Route = createFileRoute("/calendar/$timestamp")({
   component: CalendarDayComponent,
@@ -45,9 +45,9 @@ function CalendarDayComponent() {
   const date = new Date(parseInt(timestamp));
 
   const { data: mood, isLoading: isMoodLoading } = useMoodByDate(date);
-  const { data: tasks = [], isLoading: isTasksLoading } = useTasksByDate(date);
+  const { data: tasks = [], isLoading: isTasksLoading } = useTasksByCompletedAt(date);
 
-  const completedTasks = tasks.filter((task) => task.completed);
+  const completedTasks = tasks.filter((task: Task) => task.completedAt);
   const isLoading = isMoodLoading || isTasksLoading;
 
   return (
@@ -104,7 +104,7 @@ function CalendarDayComponent() {
               </h3>
               {completedTasks.length > 0 ? (
                 <div className="space-y-2">
-                  {completedTasks.map((task) => (
+                  {completedTasks.map((task: Task) => (
                     <div
                       key={task.id}
                       className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl"
@@ -120,14 +120,6 @@ function CalendarDayComponent() {
                             {task.description}
                           </p>
                         )}
-                        <div className="flex items-center gap-2 mt-2">
-                          <Badge variant="outline">{task.priority}</Badge>
-                          {task.tags.map((tag) => (
-                            <Badge key={tag} variant="secondary">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
                       </div>
                     </div>
                   ))}
@@ -147,8 +139,8 @@ function CalendarDayComponent() {
                 </h3>
                 <div className="space-y-2">
                   {tasks
-                    .filter((task) => !task.completed)
-                    .map((task) => (
+                    .filter((task: Task) => !task.completedAt)
+                    .map((task: Task) => (
                       <div
                         key={task.id}
                         className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl"
@@ -161,14 +153,6 @@ function CalendarDayComponent() {
                               {task.description}
                             </p>
                           )}
-                          <div className="flex items-center gap-2 mt-2">
-                            <Badge variant="outline">{task.priority}</Badge>
-                            {task.tags.map((tag) => (
-                              <Badge key={tag} variant="secondary">
-                                {tag}
-                              </Badge>
-                            ))}
-                          </div>
                         </div>
                       </div>
                     ))}

@@ -2,10 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { v4 as uuidv4 } from "uuid";
 import type { Mood, MoodInput } from "@/lib/types";
 import {
-  getTodaysMood,
   getMoods,
   getMoodByDate,
-  createMood as createMoodDb,
+  createMood,
   initDatabase,
 } from "@/lib/db";
 
@@ -28,7 +27,7 @@ export function useTodaysMood() {
     queryKey: TODAY_MOOD_QUERY_KEY,
     queryFn: async () => {
       await ensureDbInitialized();
-      return getTodaysMood();
+      return getMoodByDate(new Date());
     },
   });
 }
@@ -57,14 +56,14 @@ export function useCreateMood() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (input: MoodInput) => {
-      await ensureDbInitialized();
-      const newMood: Mood = {
-        ...input,
-        id: uuidv4(),
-        createdAt: new Date().toISOString(),
-      };
-      return createMoodDb(newMood);
+      mutationFn: async (input: MoodInput) => {
+        await ensureDbInitialized();
+        const newMood: Mood = {
+          ...input,
+          id: uuidv4(),
+          createdAt: new Date().toISOString(),
+        };
+        return createMood(newMood);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: MOODS_QUERY_KEY });

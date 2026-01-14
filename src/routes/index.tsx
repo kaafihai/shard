@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { useTasks } from "@/hooks/use-tasks";
 import { useTodaysMood } from "@/hooks/use-moods";
 import { Button } from "@/components/ui/button";
-import type { TaskFilter } from "@/lib/types";
 import { Spinner } from "@/components/ui/spinner";
 
 export const Route = createFileRoute("/")({
@@ -14,7 +13,7 @@ function TasksComponent() {
   const navigate = useNavigate();
   const { data: tasks = [], isLoading } = useTasks();
   const { data: todaysMood, isLoading: isMoodLoading } = useTodaysMood();
-  const [filter, setFilter] = useState<TaskFilter>("all");
+  const [filter, setFilter] = useState<"active" | "completed" | "all">("active");
   const [hasCheckedMood, setHasCheckedMood] = useState(false);
 
   useEffect(() => {
@@ -30,8 +29,8 @@ function TasksComponent() {
   }, [todaysMood, isMoodLoading, hasCheckedMood, navigate]);
 
   const filteredTasks = tasks.filter((task) => {
-    if (filter === "active") return !task.completed;
-    if (filter === "completed") return task.completed;
+    if (filter === "active") return !task.completedAt;
+    if (filter === "completed") return Boolean(task.completedAt);
     return true;
   });
 
@@ -60,13 +59,13 @@ function TasksComponent() {
           variant={filter === "active" ? "default" : "ghost"}
           onClick={() => setFilter("active")}
         >
-          Active ({tasks.filter((t) => !t.completed).length})
+          Active ({tasks.filter((t) => !t.completedAt).length})
         </Button>
         <Button
           variant={filter === "completed" ? "default" : "ghost"}
           onClick={() => setFilter("completed")}
         >
-          Completed ({tasks.filter((t) => t.completed).length})
+          Completed ({tasks.filter((t) => Boolean(t.completedAt)).length})
         </Button>
       </div>
 
@@ -80,7 +79,7 @@ function TasksComponent() {
         {filteredTasks.map((task) => (
           <div key={task.id} className="p-4 border rounded-lg">
             <h3
-              className={`font-semibold ${task.completed ? "line-through" : ""}`}
+              className={`font-semibold ${task.completedAt ? "line-through" : ""}`}
             >
               {task.title}
             </h3>

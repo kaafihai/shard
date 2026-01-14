@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { v4 as uuidv4 } from 'uuid';
-import type { Task, TaskInput, TaskWithCategoryAndTags } from '@/lib/types';
+import type { Task, TaskInput } from '@/lib/types';
 import {
   getTasks,
-  getTasksByDate,
-  createTask as createTaskDb,
-  updateTask as updateTaskDb,
-  deleteTask as deleteTaskDb,
+  getTasksByDueDate,
+  getTasksByCompletedAt,
+  createTask,
+  updateTask,
+  deleteTask,
   initDatabase,
 } from '@/lib/db';
 
@@ -33,12 +34,22 @@ export function useTasks() {
   });
 }
 
-export function useTasksByDate(date: Date) {
+export function useTasksByDueDate(date: Date) {
   return useQuery({
-    queryKey: [...TASKS_BY_DATE_QUERY_KEY, date.toISOString()],
+    queryKey: [...TASKS_BY_DATE_QUERY_KEY, 'due', date.toISOString()],
     queryFn: async () => {
       await ensureDbInitialized();
-      return getTasksByDate(date);
+      return getTasksByDueDate(date);
+    },
+  });
+}
+
+export function useTasksByCompletedAt(date: Date) {
+  return useQuery({
+    queryKey: [...TASKS_BY_DATE_QUERY_KEY, 'completed', date.toISOString()],
+    queryFn: async () => {
+      await ensureDbInitialized();
+      return getTasksByCompletedAt(date);
     },
   });
 }
@@ -49,13 +60,17 @@ export function useCreateTask() {
   return useMutation({
     mutationFn: async (input: TaskInput) => {
       await ensureDbInitialized();
+      const now = new Date().toISOString();
       const newTask: Task = {
-        ...input,
         id: uuidv4(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
+        title: input.title,
+        description: input.description,
+        dueDate: input.dueDate,
+        completedAt: input.completedAt,
+        createdAt: now,
+        updatedAt: now,
       };
-      return createTaskDb(newTask);
+      return createTask(newTask);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
@@ -67,9 +82,9 @@ export function useUpdateTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ id, updates }: { id: string; updates: Partial<Task> }) => {
+    mutationFn: async (task: Task) => {
       await ensureDbInitialized();
-      return updateTaskDb(id, updates);
+      return updateTask(task);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
@@ -81,9 +96,9 @@ export function useDeleteTask() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (task: Task) => {
       await ensureDbInitialized();
-      return deleteTaskDb(id);
+      return deleteTask(task);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: TASKS_QUERY_KEY });
@@ -96,11 +111,13 @@ export function useToggleTask() {
 
   return {
     ...updateTask,
-    mutate: (task: Task | TaskWithCategoryAndTags) => {
-      updateTask.mutate({
-        id: task.id,
-        updates: { completed: !task.completed },
-      });
+    mutate: (task: Task) => {
+      if (task.completedAt) {
+        task.completedAt = null;
+      } else {
+        task.completedAt = new Date().toISOString();
+      }
+      updateTask.mutate(task);
     },
   };
 }

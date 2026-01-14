@@ -1,7 +1,7 @@
 import Database from "@tauri-apps/plugin-sql";
-import { resolveResource } from "@tauri-apps/api/path";
+import { appDataDir, join, resolveResource } from "@tauri-apps/api/path";
 import { readTextFile } from "@tauri-apps/plugin-fs";
-import type { Task, TaskInput, Mood, MoodInput } from "./types";
+import type { Task, Mood } from "./types";
 
 let db: Database | null = null;
 
@@ -12,7 +12,9 @@ let db: Database | null = null;
 export async function initDatabase(): Promise<Database> {
   if (db) return db;
 
-  db = await Database.load("sqlite:tasks.db");
+  const appDataDirPath = await appDataDir();
+  const dbPath = await join(appDataDirPath, "tasks.db");
+  db = await Database.load(`sqlite:${dbPath}`);
 
   // Load and run migration
   const migrationPath = await resolveResource("migrations/001_initial.sql");
@@ -33,15 +35,7 @@ async function getDb(): Promise<Database> {
 // TASK OPERATIONS
 // =============================================================================
 
-interface TaskFilters {
-  completed?: boolean;
-  dueBefore?: Date;
-  dueAfter?: Date;
-  completedBefore?: Date;
-  completedAfter?: Date;
-}
-
-export async function getTasks(limit: int = 1000): Promise<Task[]> {
+export async function getTasks(limit: number = 1000): Promise<Task[]> {
   const database = await getDb();
 
   const rows = await database.select<
@@ -67,7 +61,9 @@ export async function getTasks(limit: int = 1000): Promise<Task[]> {
   }));
 }
 
-export async function getTasksByDueDate(date: Date, limit: int = 1000): Promise<Task[]> {
+export async function getTasksByDueDate(date: Date, limit: number = 1000): Promise<Task[]> {
+  const database = await getDb();
+
   const rows = await database.select<
     Array<{
       id: string;
@@ -91,7 +87,9 @@ export async function getTasksByDueDate(date: Date, limit: int = 1000): Promise<
   }));
 }
 
-export async function getTasksByCompletedAt(date: Date, limit: int = 1000): Promise<Task[]> {
+export async function getTasksByCompletedAt(date: Date, limit: number = 1000): Promise<Task[]> {
+  const database = await getDb();
+
   const rows = await database.select<
     Array<{
       id: string;
@@ -144,20 +142,8 @@ export async function getTask(id: string): Promise<Task | null> {
   };
 }
 
-export async function createTask(input: TaskInput): Promise<Task> {
+export async function createTask(task: Task): Promise<Task> {
   const database = await getDb();
-  const id = crypto.randomUUID();
-  const now = new Date().toISOString();
-
-  const task: Task = {
-    id,
-    title: input.title,
-    description: input.description,
-    dueDate: input.dueDate,
-    createdAt: now,
-    updatedAt: now,
-    completedAt: input.completedAt,
-  };
 
   await database.execute(
     `INSERT INTO tasks (id, title, description, due_date, created_at, updated_at, completed_at)
@@ -198,10 +184,15 @@ export async function deleteTask(task: Task): Promise<Task> {
 // MOOD OPERATIONS
 // =============================================================================
 
-export async function getMoods(limit: int = 1000): Promise<Mood[]> {
+export async function getMoods(limit: number = 1000): Promise<Mood[]> {
   const database = await getDb();
   const rows = await database.select<
-    Array<Mood>
+    Array<{
+      id: string;
+      mood: string;
+      note: string;
+      created_at: string;
+    }>
   >(`SELECT * FROM moods LIMIT $1`, [limit]);
 
   return rows.map((row) => ({
@@ -236,6 +227,8 @@ export async function getMood(id: string): Promise<Mood | null> {
 }
 
 export async function getMoodByDate(date: Date): Promise<Mood | null> {
+  const database = await getDb();
+
   const rows = await database.select<
     Array<{
       id: string;
