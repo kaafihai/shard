@@ -229,6 +229,10 @@ export async function getMoodById(id: string): Promise<Mood | null> {
 export async function getMoodByDate(date: Date): Promise<Mood | null> {
   const database = await getDb();
 
+  // Calculate local day boundaries in UTC to handle timezone correctly
+  const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
   const rows = await database.select<
     Array<{
       id: string;
@@ -236,7 +240,7 @@ export async function getMoodByDate(date: Date): Promise<Mood | null> {
       note: string;
       created_at: string;
     }>
-  >(`SELECT * FROM moods WHERE date(created_at) = date($1)`, [date.toISOString()]);
+  >(`SELECT * FROM moods WHERE created_at >= $1 AND created_at < $2`, [startOfDay.toISOString(), endOfDay.toISOString()]);
 
   if (rows.length === 0) return null;
 

@@ -13,8 +13,8 @@ const buttonVariants = cva("btn", {
     },
     size: {
       default:
-        "h-10 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
-      icon: "size-10",
+        "h-12 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
+      icon: "size-12",
       none: "",
     },
   },

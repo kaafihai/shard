@@ -10,7 +10,7 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <>
-      <div className="min-h-screen pt-12 bg-background pb-24">
+      <div className="min-h-dvh pt-12 bg-background pb-24">
         <nav>
           <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">

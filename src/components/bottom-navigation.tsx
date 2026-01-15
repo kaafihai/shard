@@ -24,7 +24,6 @@ interface NavItem {
 const navItems: NavItem[] = [
   { to: "/", icon: CheckCircleIcon, label: "Tasks" },
   { to: "/calendar", icon: CalendarIcon, label: "Calendar" },
-  { to: "/settings", icon: GearSixIcon, label: "Settings" },
 ];
 
 export function BottomNavigation() {
@@ -35,7 +34,7 @@ export function BottomNavigation() {
     <nav className="fixed bottom-0 left-0 right-0 bg-background z-10 border-t border-border">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-around relative">
-          {navItems.slice(0, 2).map((item) => (
+          {navItems.slice(0, 1).map((item) => (
             <NavLink
               key={item.to}
               item={item}
@@ -60,14 +59,10 @@ export function BottomNavigation() {
                 <CheckCircleIcon />
                 <span>New Task</span>
               </DropdownMenuItemLink>
-              <DropdownMenuItemLink to="/calendar">
-                <CalendarIcon />
-                <span>New Event</span>
-              </DropdownMenuItemLink>
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {navItems.slice(2).map((item) => (
+          {navItems.slice(1).map((item) => (
             <NavLink
               key={item.to}
               item={item}

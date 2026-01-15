@@ -14,12 +14,13 @@ import {
   SmileyXEyesIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { DialogFooter } from "./ui/dialog";
 
 interface MoodTrackerFormProps {
   onSuccess?: () => void;
 }
 
-const moodOptions: Array<{
+export const MOOD_OPTIONS: Array<{
   value: MoodInput["mood"];
   label: string;
   icon: Icon;
@@ -77,7 +78,7 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
       <div className="space-y-3">
         <Label>How are you feeling today?</Label>
         <div className="grid grid-cols-5 gap-2">
-          {moodOptions.map((option) => {
+          {MOOD_OPTIONS.map((option) => {
             const Icon = option.icon;
             const isSelected = formData.mood === option.value;
             return (
@@ -90,8 +91,8 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
                 className={cn(
                   "flex-col p-3 rounded-2xl border-2",
                   isSelected
-                    ? "bg-primary/10"
-                    : "border-border hover:border-primary/50",
+                    ? "bg-primary text-primary-foreground"
+                    : "",
                 )}
               >
                 <Icon
@@ -116,23 +117,14 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
         />
       </div>
 
-      <div className="flex gap-2 pt-2">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => navigate({ to: "/" })}
-          className="flex-1"
-        >
-          Skip
-        </Button>
+      <DialogFooter>
         <Button
           type="submit"
           disabled={createMood.isPending}
-          className="flex-1"
         >
-          {createMood.isPending ? "Saving..." : "Save Mood"}
+          Save
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   );
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {
   Dialog,
   DialogContent,
@@ -12,14 +12,14 @@ export const Route = createFileRoute("/tasks/new")({
 });
 
 function NewTaskComponent() {
-  const navigate = useNavigate();
+  const {history} = useRouter();
 
   return (
     <Dialog
       open={true}
       onOpenChange={(open) => {
         if (!open) {
-          navigate({ to: "/" });
+          history.back()
         }
       }}
     >

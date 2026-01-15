@@ -6,6 +6,7 @@ import { Label } from "./ui/label";
 import type { TaskInput } from "@/lib/types";
 import { useCreateTask } from "@/hooks/use-tasks";
 import { useNavigate } from "@tanstack/react-router";
+import { DialogFooter } from "./ui/dialog";
 
 interface TaskFormProps {
   onSuccess?: () => void;
@@ -80,23 +81,15 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
         />
       </div>
 
-      <div className="flex gap-2 pt-4">
-        <Button
-          type="button"
-          variant="ghost"
-          onClick={() => navigate({ to: "/" })}
-          className="flex-1"
-        >
-          Cancel
-        </Button>
+
+      <DialogFooter>
         <Button
           type="submit"
           disabled={!formData.title.trim() || createTask.isPending}
-          className="flex-1"
         >
-          {createTask.isPending ? "Creating..." : "Create Task"}
+          Create Task
         </Button>
-      </div>
+      </DialogFooter>
     </form>
   );
 }
