@@ -4,7 +4,6 @@ import { useTasks, useToggleTask, useDeleteTask } from "@/hooks/use-tasks";
 import { useTodaysMood } from "@/hooks/use-moods";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { Checkbox } from "@/components/ui/checkbox";
 import { CheckIcon, TrashIcon } from "@phosphor-icons/react";
 import type { Task } from "@/lib/types";
 
@@ -93,12 +92,6 @@ function TasksComponent() {
 
       <div className="flex gap-2">
         <Button
-          variant={filter === "all" ? "default" : "ghost"}
-          onClick={() => setFilter("all")}
-        >
-          All ({tasks.length})
-        </Button>
-        <Button
           variant={filter === "active" ? "default" : "ghost"}
           onClick={() => setFilter("active")}
         >
@@ -110,11 +103,17 @@ function TasksComponent() {
         >
           Completed ({tasks.filter((t) => Boolean(t.completedAt)).length})
         </Button>
+        <Button
+          variant={filter === "all" ? "default" : "ghost"}
+          onClick={() => setFilter("all")}
+        >
+          All ({tasks.length})
+        </Button>
       </div>
 
       {filteredTasks.length === 0 && (
         <div className="text-center text-muted-foreground py-12">
-          No tasks found. Create your first task!
+          All done!
         </div>
       )}
 

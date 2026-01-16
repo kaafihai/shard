@@ -110,11 +110,11 @@ function CalendarDayComponent() {
                       className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl"
                     >
                       <CheckCircleIcon
-                        className="size-5 text-green-500 mt-0.5"
+                        className="size-5 mt-0.5"
                         weight="fill"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium line-through">{task.title}</p>
+                        <p className="font-medium">{task.title}</p>
                         {task.description && (
                           <p className="text-sm text-muted-foreground mt-1">
                             {task.description}

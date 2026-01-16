@@ -53,10 +53,11 @@ function CalendarPage() {
     return (
       <div className="relative w-full">
         <CalendarDayButton {...props} />
-        {MoodIcon && (<span className="flex w-full justify-center absolute top-1 z-10"><MoodIcon className="size-6 text-primary bg-background rounded-full" /></span>)}
-        {hasCompletedTask && (
-            <span className="flex w-full justify-center absolute bottom-1 z-10"><CheckCircleIcon className="size-6 text-primary bg-background rounded-full z-10 p-1" /></span>
-        )}
+        <span className="pointer-events-none flex gap-1 w-full justify-center absolute -top-2 z-10">
+          {MoodIcon &&<MoodIcon className="size-6 rounded-full p-1 bg-background border border-primary text-primary" />}
+          {hasCompletedTask && (<CheckCircleIcon className="size-6 text-primary bg-background border border-primary rounded-full p-1" />)}  
+        </span>
+        
       </div>
     );
   }
