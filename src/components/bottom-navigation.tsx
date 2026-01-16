@@ -2,8 +2,6 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   CalendarIcon,
   PlusIcon,
-  GearSixIcon,
-  GridFourIcon,
   CheckCircleIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";

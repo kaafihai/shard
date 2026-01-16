@@ -6,7 +6,7 @@ import { useMoods } from "@/hooks/use-moods";
 import type { MoodLevel } from "@/lib/types";
 import type { DayButton } from "react-day-picker";
 import { MOOD_OPTIONS } from "@/components/mood-tracker-form";
-import { CheckCircleIcon, CheckIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/calendar")({
   component: CalendarPage,
