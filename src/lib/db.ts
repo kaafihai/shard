@@ -90,6 +90,10 @@ export async function getTasksByDueDate(date: Date, limit: number = 1000): Promi
 export async function getTasksByCompletedAt(date: Date, limit: number = 1000): Promise<Task[]> {
   const database = await getDb();
 
+  // Calculate local day boundaries in UTC to handle timezone correctly
+  const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate() + 1);
+
   const rows = await database.select<
     Array<{
       id: string;
@@ -100,7 +104,7 @@ export async function getTasksByCompletedAt(date: Date, limit: number = 1000): P
       updated_at: string;
       completed_at: string | null;
     }>
-  >(`SELECT * FROM tasks WHERE date(completed_at) = date($1) LIMIT $2`, [date.toISOString(), limit]);
+  >(`SELECT * FROM tasks WHERE completed_at >= $1 AND completed_at < $2 LIMIT $3`, [startOfDay.toISOString(), endOfDay.toISOString(), limit]);
 
   return rows.map((row) => ({
     id: row.id,

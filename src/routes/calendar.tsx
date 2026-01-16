@@ -6,6 +6,7 @@ import { useMoods } from "@/hooks/use-moods";
 import type { MoodLevel } from "@/lib/types";
 import type { DayButton } from "react-day-picker";
 import { MOOD_OPTIONS } from "@/components/mood-tracker-form";
+import { CheckCircleIcon, CheckIcon } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/calendar")({
   component: CalendarPage,
@@ -52,10 +53,11 @@ function CalendarPage() {
     return (
       <div className="relative w-full">
         <CalendarDayButton {...props} />
-        {MoodIcon && (<MoodIcon className="absolute -top-1 -left-1 bg-background rounded-full size-6 text-primary z-10" />)}
-        {hasCompletedTask && (
-            <div className="absolute bottom-2 right-1/2 left-1/2 size-2 rounded-full bg-destructive/20 z-50" />
-        )}
+        <span className="pointer-events-none flex gap-1 w-full justify-center absolute -top-2 z-10">
+          {MoodIcon &&<MoodIcon className="size-6 rounded-full p-1 bg-background border border-primary text-primary" />}
+          {hasCompletedTask && (<CheckCircleIcon className="size-6 text-primary bg-background border border-primary rounded-full p-1" />)}  
+        </span>
+        
       </div>
     );
   }
