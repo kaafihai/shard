@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TasksNewRouteImport } from './routes/tasks.new'
@@ -20,6 +22,16 @@ import { Route as TasksIdEditRouteImport } from './routes/tasks.$id.edit'
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -56,6 +68,8 @@ const TasksIdEditRoute = TasksIdEditRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRouteWithChildren
+  '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
   '/mood/track': typeof MoodTrackRoute
@@ -65,6 +79,8 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRouteWithChildren
+  '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
   '/mood/track': typeof MoodTrackRoute
@@ -75,6 +91,8 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/calendar': typeof CalendarRouteWithChildren
+  '/dashboard': typeof DashboardRoute
+  '/profile': typeof ProfileRoute
   '/settings': typeof SettingsRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
   '/mood/track': typeof MoodTrackRoute
@@ -86,6 +104,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/calendar'
+    | '/dashboard'
+    | '/profile'
     | '/settings'
     | '/calendar/$timestamp'
     | '/mood/track'
@@ -95,6 +115,8 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/calendar'
+    | '/dashboard'
+    | '/profile'
     | '/settings'
     | '/calendar/$timestamp'
     | '/mood/track'
@@ -104,6 +126,8 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/calendar'
+    | '/dashboard'
+    | '/profile'
     | '/settings'
     | '/calendar/$timestamp'
     | '/mood/track'
@@ -114,6 +138,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CalendarRoute: typeof CalendarRouteWithChildren
+  DashboardRoute: typeof DashboardRoute
+  ProfileRoute: typeof ProfileRoute
   SettingsRoute: typeof SettingsRoute
   MoodTrackRoute: typeof MoodTrackRoute
   TasksNewRoute: typeof TasksNewRoute
@@ -127,6 +153,20 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/settings'
       preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -189,6 +229,8 @@ const CalendarRouteWithChildren = CalendarRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CalendarRoute: CalendarRouteWithChildren,
+  DashboardRoute: DashboardRoute,
+  ProfileRoute: ProfileRoute,
   SettingsRoute: SettingsRoute,
   MoodTrackRoute: MoodTrackRoute,
   TasksNewRoute: TasksNewRoute,

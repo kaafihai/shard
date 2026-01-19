@@ -1,4 +1,5 @@
-import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,28 +15,30 @@ export const Route = createFileRoute("/mood/track")({
 
 function MoodTrackerComponent() {
   const navigate = useNavigate();
-  const {history} = useRouter();
+  const [open, setOpen] = useState(true);
+
+  const handleClose = () => {
+    setOpen(false);
+    navigate({ to: "/" });
+  };
+
   return (
     <Dialog
-      open={true}
-      onOpenChange={(open) => {
-        if (!open) {
-          if(history.canGoBack()) {
-            history.back()
-          } else {
-            navigate({ to: "/" });
-          }
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          handleClose();
         }
       }}
     >
       <DialogContent showCloseButton={false}>
         <DialogHeader>
-          <DialogTitle>Daily Mood Check-in</DialogTitle>
+          <DialogTitle>Mood Check-in</DialogTitle>
           <DialogDescription>
             Take a moment to reflect on how you're feeling
           </DialogDescription>
         </DialogHeader>
-        <MoodTrackerForm />
+        <MoodTrackerForm onSuccess={handleClose} />
       </DialogContent>
     </Dialog>
   );

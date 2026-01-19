@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { routeTree } from './routeTree.gen';
 import "./index.css";
+import { Toaster } from "./components/ui/sonner";
 
 // Create router instance
 const router = createRouter({ routeTree });
@@ -31,6 +32,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
       <ReactQueryDevtools initialIsOpen={false} />
+      <Toaster />
     </QueryClientProvider>
   </React.StrictMode>,
 );

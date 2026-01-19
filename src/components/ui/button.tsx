@@ -2,6 +2,7 @@ import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
+import { createLink } from "@tanstack/react-router";
 
 const buttonVariants = cva("btn", {
   variants: {
@@ -39,4 +40,6 @@ function Button({
   );
 }
 
-export { Button, buttonVariants };
+const ButtonLink = createLink(Button);
+
+export { Button, ButtonLink, buttonVariants };

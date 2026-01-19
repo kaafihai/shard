@@ -16,10 +16,17 @@ export async function initDatabase(): Promise<Database> {
   const dbPath = await join(appDataDirPath, "tasks.db");
   db = await Database.load(`sqlite:${dbPath}`);
 
-  // Load and run migration
-  const migrationPath = await resolveResource("migrations/001_initial.sql");
-  const migrationSql = await readTextFile(migrationPath);
-  await db.execute(migrationSql);
+  // Load and run migrations
+  const migrations = [
+    "migrations/001_initial.sql",
+    "migrations/002_remove_moods_date_unique.sql",
+  ];
+
+  for (const migration of migrations) {
+    const migrationPath = await resolveResource(migration);
+    const migrationSql = await readTextFile(migrationPath);
+    await db.execute(migrationSql);
+  }
 
   return db;
 }

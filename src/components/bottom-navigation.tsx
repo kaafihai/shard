@@ -3,6 +3,8 @@ import {
   CalendarIcon,
   PlusIcon,
   CheckCircleIcon,
+  ChartBarIcon,
+  PersonIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -16,27 +18,25 @@ import {
 interface NavItem {
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  label: string;
 }
 
 const navItems: NavItem[] = [
-  { to: "/", icon: CheckCircleIcon, label: "Tasks" },
-  { to: "/calendar", icon: CalendarIcon, label: "Calendar" },
+  { to: "/", icon: CheckCircleIcon, },
+  { to: "/calendar", icon: CalendarIcon, },
+  { to: "/dashboard", icon: ChartBarIcon,},
+  { to: "/profile", icon: PersonIcon,},
 ];
 
 export function BottomNavigation() {
-  const router = useRouterState();
-  const currentPath = router.location.pathname;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-background z-10 border-t border-border">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center justify-around relative">
-          {navItems.slice(0, 1).map((item) => (
+          {navItems.slice(0, 2).map((item) => (
             <NavLink
               key={item.to}
               item={item}
-              isActive={currentPath === item.to}
             />
           ))}
 
@@ -60,11 +60,10 @@ export function BottomNavigation() {
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {navItems.slice(1).map((item) => (
+          {navItems.slice(2).map((item) => (
             <NavLink
               key={item.to}
               item={item}
-              isActive={currentPath === item.to}
             />
           ))}
         </div>
@@ -75,21 +74,27 @@ export function BottomNavigation() {
 
 interface NavLinkProps {
   item: NavItem;
-  isActive: boolean;
 }
 
-function NavLink({ item, isActive }: NavLinkProps) {
+function NavLink({ item }: NavLinkProps) {
   const Icon = item.icon;
 
   return (
     <Link
       to={item.to}
       className={cn(
-        "btn btn--ghost p-4",
-        isActive
-          ? "text-primary"
-          : "text-muted-foreground hover:text-foreground",
+        "btn p-4",
       )}
+      activeProps={
+        {
+          className: "text-primary"
+        }
+      }
+      inactiveProps={
+        {
+          className: 'btn--ghost text-muted-foreground hover:text-foreground'
+        }
+      }
     >
       <Icon className="size-6" />
     </Link>

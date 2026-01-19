@@ -18,7 +18,7 @@ export function DatePicker({
   return (
     <Dialog>
       <DialogTrigger
-        render={<Button />}
+        render={<Button className={'bg-input/30'} variant={'ghost'} />}
         className="w-full px-2 justify-start text-left font-normal"
       >
         <CalendarBlankIcon data-icon="inline-start" className="size-4" />

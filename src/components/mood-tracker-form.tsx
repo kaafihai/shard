@@ -5,6 +5,7 @@ import { Label } from "./ui/label";
 import type { MoodInput } from "@/lib/types";
 import { useCreateMood } from "@/hooks/use-moods";
 import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import {
   type Icon,
   SmileyIcon,
@@ -57,7 +58,7 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
   const createMood = useCreateMood();
 
   const [formData, setFormData] = useState<MoodInput>({
-    mood: "okay",
+    mood: "" as any,
     note: "",
   });
 
@@ -69,14 +70,14 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
       onSuccess?.();
       await navigate({ to: "/" });
     } catch (error) {
-      console.error("Failed to track mood:", error);
+      toast.error(`Failed to save mood. ${error}`);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-3">
-        <Label>How are you feeling today?</Label>
+        <Label>How are you feeling right now?</Label>
         <div className="grid grid-cols-5 gap-2">
           {MOOD_OPTIONS.map((option) => {
             const Icon = option.icon;
@@ -112,7 +113,7 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
           id="note"
           value={formData.note}
           onChange={(e) => setFormData({ ...formData, note: e.target.value })}
-          placeholder="How was your day? Any thoughts to share?"
+          placeholder="Any thoughts to share?"
           rows={3}
         />
       </div>

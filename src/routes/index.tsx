@@ -2,10 +2,9 @@ import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect } from "react";
 import { useTasks, useToggleTask, useDeleteTask } from "@/hooks/use-tasks";
 import { useTodaysMood } from "@/hooks/use-moods";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonLink } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { CalendarBlankIcon, CheckIcon, PencilSimpleIcon, TrashIcon } from "@phosphor-icons/react";
-import { Link } from "@tanstack/react-router";
 import { format } from "date-fns";
 import type { Task } from "@/lib/types";
 
@@ -52,13 +51,15 @@ function TaskItem({
           </p>
         )}
       </div>
-      <Button
+      <ButtonLink
         variant="ghost"
         size="icon"
-        render={<Link to="/tasks/$id/edit" params={{ id: task.id }} />}
+        to='/tasks/$id/edit'
+        params={{id: task.id}}
+        disabled={Boolean(task.completedAt)}
       >
         <PencilSimpleIcon />
-      </Button>
+      </ButtonLink>
       <Button
         variant="ghost"
         size="icon"
@@ -78,9 +79,9 @@ function TasksComponent() {
   const [filter, setFilter] = useState<"active" | "completed" | "all">("all");
   const toggleTask = useToggleTask();
   const deleteTask = useDeleteTask();
-  
+
   useEffect(() => {
-    if (todaysMood === null) {
+    if (!isMoodLoading && todaysMood === null) {
       navigate({ to: "/mood/track" });
     }
   }, [todaysMood, isMoodLoading, navigate]);

@@ -8,6 +8,7 @@ import { useCreateTask } from "@/hooks/use-tasks";
 import { useNavigate } from "@tanstack/react-router";
 import { DialogFooter } from "./ui/dialog";
 import { DatePicker } from "./ui/date-picker";
+import { toast } from "sonner";
 
 interface TaskFormProps {
   onSuccess?: () => void;
@@ -36,7 +37,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
       onSuccess?.();
       navigate({ to: "/" });
     } catch (error) {
-      console.error("Failed to create task:", error);
+      toast.error(`Failed to create task: ${error}`);
     }
   };
 

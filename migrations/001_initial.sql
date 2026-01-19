@@ -32,4 +32,3 @@ CREATE TABLE IF NOT EXISTS moods (
 );
 
 CREATE INDEX IF NOT EXISTS idx_moods_created ON moods(created_at);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_moods_date_unique ON moods(date(created_at));
