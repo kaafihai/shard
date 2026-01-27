@@ -59,11 +59,12 @@ function ListItem({
   return (
     <div
       data-completed={completed}
-      className="flex bg-primary/10 data-[completed=true]:bg-success/10 items-center gap-4 p-4 rounded-4xl transition-colors"
+      className="flex bg-primary/5 data-[completed=true]:bg-success/10 items-center gap-4 p-4 rounded-4xl transition-colors"
     >
       <Button
         size="icon"
-        variant={completed ? "ghost" : "success"}
+        variant={completed ? "ghost" : 'success'}
+        disabled={completed}
         onClick={onToggle}
       >
         <CheckIcon />
