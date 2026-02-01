@@ -100,10 +100,7 @@ function DialogFooter({
   return (
     <div
       data-slot="dialog-footer"
-      className={cn(
-        "gap-2 flex-1 flex flex-col",
-        className,
-      )}
+      className={cn("gap-2 flex-1 flex flex-col", className)}
       {...props}
     >
       {children}
@@ -134,7 +131,7 @@ function DialogDescription({
     <DialogPrimitive.Description
       data-slot="dialog-description"
       className={cn(
-        "text-muted-foreground *:[a]:hover:text-foreground text-sm *:[a]:underline *:[a]:underline-offset-3",
+        "*:[a]:hover:text-foreground text-sm *:[a]:underline *:[a]:underline-offset-3",
         className,
       )}
       {...props}

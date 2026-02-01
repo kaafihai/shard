@@ -29,7 +29,7 @@ export function DatePicker({
           {value ? (
             format(new Date(value), "PPP")
           ) : (
-            <span className="text-muted-foreground">{placeholder}</span>
+            <span className="">{placeholder}</span>
           )}
         </DialogTrigger>
         <DialogContent className="items-center" showCloseButton={false}>
@@ -40,7 +40,11 @@ export function DatePicker({
             onSelect={(date) => {
               if (date && !Array.isArray(date)) {
                 // Create a date at midnight in local timezone, then convert to ISO
-                const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                const localMidnight = new Date(
+                  date.getFullYear(),
+                  date.getMonth(),
+                  date.getDate(),
+                );
                 onChange(localMidnight.toISOString());
                 setOpen(false);
               }
@@ -54,7 +58,7 @@ export function DatePicker({
           variant="ghost"
           size="icon"
           onClick={() => onChange(null)}
-          className="text-muted-foreground"
+          className=""
         >
           <XIcon className="size-4" />
         </Button>

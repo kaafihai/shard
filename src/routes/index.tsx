@@ -1,11 +1,22 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
-import { useTasks, useToggleTask, useDeleteTask } from "@/hooks/use-tasks";
-import { useHabits, useHabitEntriesByDate, useToggleHabitEntry, getTodayDateString } from "@/hooks/use-habits";
+import { useTasks, useToggleTask } from "@/hooks/use-tasks";
+import {
+  useHabits,
+  useHabitEntriesByDate,
+  useToggleHabitEntry,
+  getTodayDateString,
+} from "@/hooks/use-habits";
 import { useTodaysMood } from "@/hooks/use-moods";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { CalendarBlankIcon, CheckIcon, PencilSimpleIcon, TrashIcon, RepeatIcon, PlusIcon } from "@phosphor-icons/react";
+import {
+  CalendarBlankIcon,
+  CheckIcon,
+  PencilSimpleIcon,
+  RepeatIcon,
+  PlusIcon,
+} from "@phosphor-icons/react";
 import { format } from "date-fns";
 import type { Task, Habit, HabitEntry } from "@/lib/types";
 
@@ -18,6 +29,41 @@ const DAY_MAP: Record<number, string> = {
   5: "FR",
   6: "SA",
 };
+
+const DAY_LABELS: Record<string, string> = {
+  SU: "Sun",
+  MO: "Mon",
+  TU: "Tue",
+  WE: "Wed",
+  TH: "Thu",
+  FR: "Fri",
+  SA: "Sat",
+};
+const WEEKDAYS = ["MO", "TU", "WE", "TH", "FR"];
+const WEEKENDS = ["SA", "SU"];
+const ALL_DAYS = ["MO", "TU", "WE", "TH", "FR", "SA", "SU"];
+
+function formatRRule(rrule: string): string {
+  const freqMatch = rrule.match(/FREQ=(\w+)/);
+  const frequency = freqMatch?.[1] || "DAILY";
+
+  if (frequency === "DAILY") return "Every day";
+
+  if (frequency === "WEEKLY") {
+    const daysMatch = rrule.match(/BYDAY=([A-Z,]+)/);
+    const days = daysMatch ? daysMatch[1].split(",") : [];
+    if (days.length === 0) return "Weekly";
+    const sorted = ALL_DAYS.filter((d) => days.includes(d));
+    if (sorted.length === 7) return "Every day";
+    if (sorted.length === 5 && WEEKDAYS.every((d) => days.includes(d)))
+      return "Weekdays";
+    if (sorted.length === 2 && WEEKENDS.every((d) => days.includes(d)))
+      return "Weekends";
+    return sorted.map((d) => DAY_LABELS[d]).join(", ");
+  }
+
+  return rrule;
+}
 
 function isDateScheduled(date: Date, rrule: string): boolean {
   const freqMatch = rrule.match(/FREQ=(\w+)/);
@@ -62,20 +108,20 @@ function ListItem({
       className="flex bg-primary/5 data-[completed=true]:bg-success/10 items-center gap-4 p-4 rounded-4xl transition-colors"
     >
       <div className="flex-1 min-w-0 order-1 md:order-2">
-        <h3
-          className={`font-semibold ${completed ? "text-muted-foreground" : ""}`}
-        >
+        <h3 className={`font-semibold ${completed ? "opacity-70" : ""}`}>
           {title}
         </h3>
-        {description && (
-          <p className="text-sm text-muted-foreground mt-1">{description}</p>
-        )}
+        {description && <p className="text-sm mt-1">{description}</p>}
         {metadata}
       </div>
-      {actions && <div className="flex items-center gap-1 order-2 md:order-3">{actions}</div>}
+      {actions && (
+        <div className="flex items-center gap-1 order-2 md:order-3">
+          {actions}
+        </div>
+      )}
       <Button
         size="icon"
-        variant={completed ? "ghost" : 'success'}
+        variant={completed ? "ghost" : "success"}
         disabled={completed}
         onClick={onToggle}
         className="order-3 md:order-1"
@@ -104,9 +150,9 @@ function HabitItem({
       title={habit.title}
       description={habit.description}
       metadata={
-        <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1">
+        <p className="text-sm mt-1 flex items-center gap-1">
           <RepeatIcon className="size-3" />
-          {habit.rrule}
+          {formatRRule(habit.rrule)}
         </p>
       }
     />
@@ -116,11 +162,9 @@ function HabitItem({
 function TaskItem({
   task,
   onToggle,
-  onDelete,
 }: {
   task: Task;
   onToggle: (task: Task) => void;
-  onDelete: (task: Task) => void;
 }) {
   const isCompleted = Boolean(task.completedAt);
   const isPast =
@@ -136,7 +180,7 @@ function TaskItem({
         task.dueDate ? (
           <p
             data-past={isPast}
-            className="text-sm data-[past=true]:text-destructive text-muted-foreground mt-1 flex items-center gap-1"
+            className="text-sm data-[past=true]:text-destructive mt-1 flex items-center gap-1"
           >
             <CalendarBlankIcon className="size-3" />
             {format(new Date(task.dueDate), "PPP")}
@@ -144,25 +188,16 @@ function TaskItem({
         ) : undefined
       }
       actions={
-        <>
+        !isCompleted ? (
           <ButtonLink
             variant="ghost"
             size="icon"
             to="/tasks/$id/edit"
             params={{ id: task.id }}
-            disabled={isCompleted}
           >
             <PencilSimpleIcon />
           </ButtonLink>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            onClick={() => onDelete(task)}
-          >
-            <TrashIcon />
-          </Button>
-        </>
+        ) : undefined
       }
     />
   );
@@ -177,7 +212,6 @@ function TasksComponent() {
   const { data: todaysMood, isLoading: isMoodLoading } = useTodaysMood();
   const [filter, setFilter] = useState<"active" | "completed" | "all">("all");
   const toggleTask = useToggleTask();
-  const deleteTask = useDeleteTask();
   const toggleHabitEntry = useToggleHabitEntry();
 
   useEffect(() => {
@@ -205,7 +239,9 @@ function TasksComponent() {
     toggleHabitEntry.mutate({ habit, date: todayDate, currentEntry: entry });
   };
 
-  const completedHabitsCount = todaysHabits.filter((h) => getEntryForHabit(h.id)?.status === 'completed').length;
+  const completedHabitsCount = todaysHabits.filter(
+    (h) => getEntryForHabit(h.id)?.status === "completed",
+  ).length;
 
   if (isLoading || isHabitsLoading) {
     return (
@@ -221,16 +257,14 @@ function TasksComponent() {
       <div className="flex justify-between items-end border-b pb-4">
         <h2 className="text-3xl font-bold">Today's Habits</h2>
         {todaysHabits.length > 0 && (
-          <span className="text-muted-foreground text-sm">
+          <span className="text-sm">
             {completedHabitsCount}/{todaysHabits.length}
           </span>
         )}
       </div>
 
       {todaysHabits.length === 0 ? (
-        <div className="text-center text-muted-foreground py-8">
-          No habits scheduled for today.
-        </div>
+        <div className="text-center py-8">No habits scheduled for today.</div>
       ) : (
         <div className="space-y-3">
           {todaysHabits.map((habit) => (
@@ -271,9 +305,7 @@ function TasksComponent() {
       </div>
 
       {filteredTasks.length === 0 && (
-        <div className="text-center text-muted-foreground py-12">
-          All done!
-        </div>
+        <div className="text-center py-12">All done!</div>
       )}
 
       <div className="space-y-3">
@@ -282,7 +314,6 @@ function TasksComponent() {
             key={task.id}
             task={task}
             onToggle={toggleTask.mutate}
-            onDelete={deleteTask.mutate}
           />
         ))}
       </div>
@@ -291,7 +322,7 @@ function TasksComponent() {
       <ButtonLink
         to="/new"
         size="icon"
-        className="fixed bottom-28 right-6 size-14 rounded-full shadow-lg"
+        className="z-20 fixed bottom-40 right-6 size-14 rounded-full shadow-lg"
       >
         <PlusIcon className="size-6" />
       </ButtonLink>

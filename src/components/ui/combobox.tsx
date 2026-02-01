@@ -29,7 +29,7 @@ function ComboboxTrigger({
       {...props}
     >
       {children}
-      <CaretDownIcon className="text-muted-foreground size-4 pointer-events-none" />
+      <CaretDownIcon className="text-muted size-4 pointer-events-none" />
     </ComboboxPrimitive.Trigger>
   );
 }

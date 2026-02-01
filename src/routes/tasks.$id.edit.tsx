@@ -12,9 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useTasks, useUpdateTask } from "@/hooks/use-tasks";
+import { useTasks, useUpdateTask, useDeleteTask } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
+import { TrashIcon } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: EditTaskComponent,
@@ -25,6 +26,7 @@ function EditTaskComponent() {
   const { id } = Route.useParams();
   const { data: tasks = [], isLoading } = useTasks();
   const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
 
   const task = tasks.find((t) => t.id === id);
 
@@ -54,6 +56,16 @@ function EditTaskComponent() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!task) return;
+    try {
+      await deleteTask.mutateAsync(task);
+      history.back();
+    } catch (error) {
+      toast.error(`Failed to delete task: ${error}`);
+    }
+  };
+
   if (isLoading) {
     return (
       <Dialog open={true} onOpenChange={() => history.back()}>
@@ -73,9 +85,7 @@ function EditTaskComponent() {
           <DialogHeader>
             <DialogTitle>Task not found</DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground">
-            The task you're looking for doesn't exist.
-          </p>
+          <p className="">The task you're looking for doesn't exist.</p>
           <DialogFooter>
             <Button onClick={() => history.back()}>Go Back</Button>
           </DialogFooter>
@@ -133,7 +143,17 @@ function EditTaskComponent() {
             />
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex justify-between sm:justify-between">
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+              disabled={deleteTask.isPending}
+              onClick={handleDelete}
+            >
+              <TrashIcon />
+              Delete
+            </Button>
             <Button
               type="submit"
               disabled={!formData.title.trim() || updateTask.isPending}

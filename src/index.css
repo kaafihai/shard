@@ -108,24 +108,24 @@
     --success-11: oklch(0.839 0.109 180);
     --success-12: oklch(0.916 0.04 180);
 
-    --card: var(--primary-11);
+    --card: var(--primary-12);
     --card-foreground: var(--foreground);
 
     --popover: var(--card);
     --popover-foreground: var(--foreground);
 
     --primary: var(--primary-9);
-    --primary-foreground: var(--foreground);
+    --primary-foreground: var(--background);
 
     --muted: var(--primary-10);
-    --muted-foreground: var(--primary-2);
+    --muted-foreground: var(--background);
 
     --destructive: oklch(0.577 0.245 27.325);
 
     --success: var(--success-9);
-    --success-foreground: var(--success-1);
+    --success-foreground: var(--background);
 
-    --border: var(--primary-8);
+    --border: var(--primary-10);
     --input: var(--border);
     --ring: var(--border);
 
@@ -182,5 +182,5 @@
 }
 
 @utility btn--ghost {
-    @apply hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground;
+    @apply hover:bg-muted hover:text-muted-foreground aria-expanded:bg-muted aria-expanded:text-muted-foreground;
 }

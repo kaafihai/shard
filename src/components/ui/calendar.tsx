@@ -46,7 +46,7 @@ function Calendar({
   allowFutureDates = false,
 }: CalendarProps) {
   const [internalMonth, setInternalMonth] = React.useState(
-    defaultMonth ?? new Date()
+    defaultMonth ?? new Date(),
   );
 
   const currentMonth = controlledMonth ?? internalMonth;
@@ -62,7 +62,9 @@ function Calendar({
   const goToPrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const goToNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
 
-  const canGoNext = allowFutureDates || !isAfter(startOfMonth(addMonths(currentMonth, 1)), today);
+  const canGoNext =
+    allowFutureDates ||
+    !isAfter(startOfMonth(addMonths(currentMonth, 1)), today);
 
   const isSelected = (date: Date): boolean => {
     if (!selected) return false;
@@ -110,10 +112,7 @@ function Calendar({
   };
 
   return (
-    <div
-      data-slot="calendar"
-      className={cn("p-3 bg-background", className)}
-    >
+    <div data-slot="calendar" className={cn("p-3 bg-background", className)}>
       {/* Navigation */}
       <div className="flex items-center justify-between border-b pb-2 mb-4">
         <Button variant="ghost" size="icon" onClick={goToPrevMonth}>
@@ -137,7 +136,7 @@ function Calendar({
         {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
           <div
             key={day}
-            className="text-center text-muted-foreground text-[0.8rem] font-normal select-none py-1"
+            className="text-center text-[0.8rem] font-normal select-none py-1"
           >
             {day}
           </div>
@@ -170,10 +169,13 @@ function Calendar({
                 "aspect-square flex items-center justify-center text-sm rounded-4xl transition-colors select-none",
                 "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 dayToday && "bg-muted font-medium",
-                daySelected && !modifierClasses && "bg-primary text-primary-foreground",
-                dayDisabled && "text-muted-foreground opacity-50 cursor-not-allowed hover:bg-transparent",
-                dayOutside && "text-muted-foreground",
-                modifierClasses
+                daySelected &&
+                  !modifierClasses &&
+                  "bg-primary text-primary-foreground",
+                dayDisabled &&
+                  "opacity-50 cursor-not-allowed hover:bg-transparent",
+                dayOutside && "",
+                modifierClasses,
               )}
             >
               {format(date, "d")}

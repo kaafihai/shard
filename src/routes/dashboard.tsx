@@ -3,7 +3,13 @@ import { useTasks } from "@/hooks/use-tasks";
 import { useMoods } from "@/hooks/use-moods";
 import { useHabits, useAllHabitEntries } from "@/hooks/use-habits";
 import { Spinner } from "@/components/ui/spinner";
-import { ChartBarIcon, ChartLineUpIcon, CheckCircleIcon, CircleDashedIcon,  XCircleIcon } from "@phosphor-icons/react";
+import {
+  ChartBarIcon,
+  ChartLineUpIcon,
+  CheckCircleIcon,
+  CircleDashedIcon,
+  XCircleIcon,
+} from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import type { Habit, HabitEntry, MoodLevel } from "@/lib/types";
@@ -38,7 +44,8 @@ function DashboardPage() {
   const { data: tasks, isLoading: tasksLoading } = useTasks();
   const { data: moods, isLoading: moodsLoading } = useMoods();
   const { data: habits, isLoading: habitsLoading } = useHabits();
-  const { data: habitEntries, isLoading: habitEntriesLoading } = useAllHabitEntries();
+  const { data: habitEntries, isLoading: habitEntriesLoading } =
+    useAllHabitEntries();
 
   const completedTasks = tasks?.filter((t) => t.completedAt) ?? [];
   const activeTasks = tasks?.filter((t) => !t.completedAt) ?? [];
@@ -48,15 +55,15 @@ function DashboardPage() {
       acc[mood.mood] = (acc[mood.mood] || 0) + 1;
       return acc;
     },
-    {} as Record<MoodLevel, number>
+    {} as Record<MoodLevel, number>,
   );
 
   const mostFrequentMood = Object.entries(moodCounts).sort(
-    ([, a], [, b]) => b - a
+    ([, a], [, b]) => b - a,
   )[0]?.[0] as MoodLevel | undefined;
 
   const MostFrequentMoodIcon = MOOD_OPTIONS.find(
-    (m) => m.value === mostFrequentMood
+    (m) => m.value === mostFrequentMood,
   )?.icon;
 
   const { activityData, weeks, startDate } = useMemo(() => {
@@ -84,26 +91,41 @@ function DashboardPage() {
     const days = eachDayOfInterval({ start: startDate, end: today });
 
     // Build activity map
-    const activityMap = new Map<string, { tasks: number; moods: number; habits: number }>();
+    const activityMap = new Map<
+      string,
+      { tasks: number; moods: number; habits: number }
+    >();
 
     tasks?.forEach((task) => {
       if (task.completedAt) {
         const key = formatDateKey(new Date(task.completedAt));
-        const existing = activityMap.get(key) || { tasks: 0, moods: 0, habits: 0 };
+        const existing = activityMap.get(key) || {
+          tasks: 0,
+          moods: 0,
+          habits: 0,
+        };
         activityMap.set(key, { ...existing, tasks: existing.tasks + 1 });
       }
     });
 
     moods?.forEach((mood) => {
       const key = formatDateKey(new Date(mood.createdAt));
-      const existing = activityMap.get(key) || { tasks: 0, moods: 0, habits: 0 };
+      const existing = activityMap.get(key) || {
+        tasks: 0,
+        moods: 0,
+        habits: 0,
+      };
       activityMap.set(key, { ...existing, moods: existing.moods + 1 });
     });
 
     habitEntries?.forEach((entry) => {
-      if (entry.status === 'completed') {
+      if (entry.status === "completed") {
         const key = entry.date;
-        const existing = activityMap.get(key) || { tasks: 0, moods: 0, habits: 0 };
+        const existing = activityMap.get(key) || {
+          tasks: 0,
+          moods: 0,
+          habits: 0,
+        };
         activityMap.set(key, { ...existing, habits: existing.habits + 1 });
       }
     });
@@ -111,7 +133,11 @@ function DashboardPage() {
     // Calculate activity levels
     const activityData: DayActivity[] = days.map((date) => {
       const key = formatDateKey(date);
-      const activity = activityMap.get(key) || { tasks: 0, moods: 0, habits: 0 };
+      const activity = activityMap.get(key) || {
+        tasks: 0,
+        moods: 0,
+        habits: 0,
+      };
       const total = activity.tasks + activity.moods + activity.habits;
 
       let level: ActivityLevel = 0;
@@ -138,7 +164,8 @@ function DashboardPage() {
     // Calculate stats
     const totalTasks = tasks?.filter((t) => t.completedAt).length ?? 0;
     const totalMoods = moods?.length ?? 0;
-    const totalHabits = habitEntries?.filter((e) => e.status === 'completed').length ?? 0;
+    const totalHabits =
+      habitEntries?.filter((e) => e.status === "completed").length ?? 0;
     const activeDays = activityData.filter((d) => d.level > 0).length;
 
     return {
@@ -192,28 +219,37 @@ function DashboardPage() {
           <h3 className="text-xl font-semibold">Habits This Week</h3>
           <div className="space-y-4">
             <div className="bg-primary/10 p-8 rounded-4xl flex flex-row justify-between gap-2">
-              {
-                Array.from({ length: 7 }).map((_, i) => {
-                  const date = subDays(new Date(), 6 - i);
-                  return <div key={date.toISOString()} className={cn("flex flex-col items-center gap-1 rounded-2xl p-2", i === 6 ? 'bg-primary text-primary-foreground font-bold' : '')}>
-                    <span className="text-sm text-muted-foreground">
-                      {format(date, "EEE")}
-                    </span>
+              {Array.from({ length: 7 }).map((_, i) => {
+                const date = subDays(new Date(), 6 - i);
+                return (
+                  <div
+                    key={date.toISOString()}
+                    className={cn(
+                      "flex flex-col items-center gap-1 rounded-2xl p-2",
+                      i === 6
+                        ? "bg-primary text-primary-foreground font-bold"
+                        : "text-foreground",
+                    )}
+                  >
+                    <span className="text-sm">{format(date, "EEE")}</span>
                     <div
                       className={cn(
-                        "size-8 rounded-full flex items-center justify-center text-xs")}
+                        "size-8 rounded-full flex items-center justify-center text-xs",
+                      )}
                     >
                       {format(date, "d")}
                     </div>
                   </div>
-                })
-              }
+                );
+              })}
             </div>
             {habits.map((habit) => (
               <HabitWeeklyView
                 key={habit.id}
                 habit={habit}
-                entries={habitEntries?.filter((e) => e.habitId === habit.id) ?? []}
+                entries={
+                  habitEntries?.filter((e) => e.habitId === habit.id) ?? []
+                }
               />
             ))}
           </div>
@@ -232,7 +268,7 @@ function DashboardPage() {
               </div>
             ))}
           </div>
-          <div className="flex items-center justify-between mt-4 text-sm text-muted-foreground">
+          <div className="flex items-center justify-between mt-4 text-sm">
             <span>{format(startDate, "MMM yyyy")}</span>
             <div className="flex items-center gap-2">
               <span>Less</span>
@@ -242,7 +278,7 @@ function DashboardPage() {
                     key={level}
                     className={cn(
                       "size-3 rounded-sm",
-                      getLevelColor(level as ActivityLevel)
+                      getLevelColor(level as ActivityLevel),
                     )}
                   />
                 ))}
@@ -271,21 +307,29 @@ function DashboardPage() {
                     ? "Today"
                     : format(day.date, "EEE, MMM d")}
                 </span>
-                <div className="flex gap-4 text-sm text-muted-foreground">
+                <div className="flex gap-4 text-sm">
                   {day.tasksCompleted > 0 && (
-                    <span>{day.tasksCompleted} task{day.tasksCompleted !== 1 ? "s" : ""}</span>
+                    <span>
+                      {day.tasksCompleted} task
+                      {day.tasksCompleted !== 1 ? "s" : ""}
+                    </span>
                   )}
                   {day.habitsCompleted > 0 && (
-                    <span>{day.habitsCompleted} habit{day.habitsCompleted !== 1 ? "s" : ""}</span>
+                    <span>
+                      {day.habitsCompleted} habit
+                      {day.habitsCompleted !== 1 ? "s" : ""}
+                    </span>
                   )}
                   {day.moodsLogged > 0 && (
-                    <span>{day.moodsLogged} mood{day.moodsLogged !== 1 ? "s" : ""}</span>
+                    <span>
+                      {day.moodsLogged} mood{day.moodsLogged !== 1 ? "s" : ""}
+                    </span>
                   )}
                 </div>
               </div>
             ))}
           {activityData.filter((d) => d.level > 0).length === 0 && (
-            <p className="text-center text-muted-foreground py-8">
+            <p className="text-center py-8">
               No activity yet. Start by logging a mood or completing a task!
             </p>
           )}
@@ -318,13 +362,13 @@ function HeatmapCell({ day }: { day: DayActivity }) {
       className={cn(
         "size-4 rounded-sm transition-colors",
         getLevelColor(day.level),
-        isToday && "ring-2 ring-foreground ring-offset-1 ring-offset-background"
+        isToday &&
+          "ring-2 ring-foreground ring-offset-1 ring-offset-background",
       )}
       title={`${format(day.date, "MMM d, yyyy")}: ${day.tasksCompleted} tasks, ${day.habitsCompleted} habits, ${day.moodsLogged} moods`}
     />
   );
 }
-
 
 const DAY_MAP: Record<number, string> = {
   0: "SU",
@@ -355,7 +399,13 @@ function isDateScheduled(date: Date, rrule: string): boolean {
   return true;
 }
 
-function HabitWeeklyView({ habit, entries }: { habit: Habit; entries: HabitEntry[] }) {
+function HabitWeeklyView({
+  habit,
+  entries,
+}: {
+  habit: Habit;
+  entries: HabitEntry[];
+}) {
   const today = new Date();
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
@@ -366,7 +416,7 @@ function HabitWeeklyView({ habit, entries }: { habit: Habit; entries: HabitEntry
       return {
         date,
         dateString,
-        isCompleted: entry?.status === 'completed',
+        isCompleted: entry?.status === "completed",
         isScheduled,
         isToday: isSameDay(date, today),
       };
@@ -384,22 +434,29 @@ function HabitWeeklyView({ habit, entries }: { habit: Habit; entries: HabitEntry
     >
       <div className="flex items-center justify-between mb-3">
         <h4 className="font-semibold">{habit.title}</h4>
-        <span className="text-sm text-muted-foreground">
+        <span className="text-sm text-muted">
           {completedCount}/{scheduledDays.length} this week
         </span>
       </div>
       <div className="flex gap-2 justify-between">
         {weekDays.map((day) => (
-          <div key={day.dateString} className="flex flex-col items-center gap-1 px-2">
+          <div
+            key={day.dateString}
+            className="flex flex-col items-center gap-1 px-2"
+          >
             <div
               className={cn(
                 "size-8 rounded-full flex items-center opacity-80 justify-center text-xs font-medium transition-colors",
-                day.isScheduled
-                    ? ""
-                    : "!opacity-40",
+                day.isScheduled ? "" : "!opacity-40",
               )}
             >
-              {day.isCompleted ? <CheckCircleIcon className="size-8" /> : day.isScheduled ? <XCircleIcon className="size-8" /> : <CircleDashedIcon className="size-8" />}
+              {day.isCompleted ? (
+                <CheckCircleIcon className="size-8" />
+              ) : day.isScheduled ? (
+                <XCircleIcon className="size-8" />
+              ) : (
+                <CircleDashedIcon className="size-8" />
+              )}
             </div>
           </div>
         ))}
@@ -407,7 +464,6 @@ function HabitWeeklyView({ habit, entries }: { habit: Habit; entries: HabitEntry
     </Link>
   );
 }
-
 
 function StatCard({
   icon,
@@ -427,7 +483,7 @@ function StatCard({
         <span className="text-sm font-medium">{label}</span>
       </div>
       <p className="text-2xl font-bold capitalize">{value}</p>
-      <p className="text-sm text-muted-foreground">{sublabel}</p>
+      <p className="text-sm">{sublabel}</p>
     </div>
   );
 }

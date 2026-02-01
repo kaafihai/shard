@@ -9,23 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as NewRouteImport } from './routes/new'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TasksNewRouteImport } from './routes/tasks.new'
 import { Route as MoodTrackRouteImport } from './routes/mood.track'
-import { Route as HabitsNewRouteImport } from './routes/habits.new'
 import { Route as CalendarTimestampRouteImport } from './routes/calendar.$timestamp'
 import { Route as TasksIdEditRouteImport } from './routes/tasks.$id.edit'
 import { Route as HabitsIdStatsRouteImport } from './routes/habits.$id.stats'
 
-const SettingsRoute = SettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NewRoute = NewRouteImport.update({
   id: '/new',
   path: '/new',
@@ -46,19 +38,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TasksNewRoute = TasksNewRouteImport.update({
-  id: '/tasks/new',
-  path: '/tasks/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MoodTrackRoute = MoodTrackRouteImport.update({
   id: '/mood/track',
   path: '/mood/track',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HabitsNewRoute = HabitsNewRouteImport.update({
-  id: '/habits/new',
-  path: '/habits/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarTimestampRoute = CalendarTimestampRouteImport.update({
@@ -82,11 +64,8 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/new': typeof NewRoute
-  '/settings': typeof SettingsRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
-  '/habits/new': typeof HabitsNewRoute
   '/mood/track': typeof MoodTrackRoute
-  '/tasks/new': typeof TasksNewRoute
   '/habits/$id/stats': typeof HabitsIdStatsRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
 }
@@ -95,11 +74,8 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/new': typeof NewRoute
-  '/settings': typeof SettingsRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
-  '/habits/new': typeof HabitsNewRoute
   '/mood/track': typeof MoodTrackRoute
-  '/tasks/new': typeof TasksNewRoute
   '/habits/$id/stats': typeof HabitsIdStatsRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
 }
@@ -109,11 +85,8 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/new': typeof NewRoute
-  '/settings': typeof SettingsRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
-  '/habits/new': typeof HabitsNewRoute
   '/mood/track': typeof MoodTrackRoute
-  '/tasks/new': typeof TasksNewRoute
   '/habits/$id/stats': typeof HabitsIdStatsRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
 }
@@ -124,11 +97,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/new'
-    | '/settings'
     | '/calendar/$timestamp'
-    | '/habits/new'
     | '/mood/track'
-    | '/tasks/new'
     | '/habits/$id/stats'
     | '/tasks/$id/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -137,11 +107,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/new'
-    | '/settings'
     | '/calendar/$timestamp'
-    | '/habits/new'
     | '/mood/track'
-    | '/tasks/new'
     | '/habits/$id/stats'
     | '/tasks/$id/edit'
   id:
@@ -150,11 +117,8 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/new'
-    | '/settings'
     | '/calendar/$timestamp'
-    | '/habits/new'
     | '/mood/track'
-    | '/tasks/new'
     | '/habits/$id/stats'
     | '/tasks/$id/edit'
   fileRoutesById: FileRoutesById
@@ -164,23 +128,13 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   NewRoute: typeof NewRoute
-  SettingsRoute: typeof SettingsRoute
-  HabitsNewRoute: typeof HabitsNewRoute
   MoodTrackRoute: typeof MoodTrackRoute
-  TasksNewRoute: typeof TasksNewRoute
   HabitsIdStatsRoute: typeof HabitsIdStatsRoute
   TasksIdEditRoute: typeof TasksIdEditRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/settings': {
-      id: '/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof SettingsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/new': {
       id: '/new'
       path: '/new'
@@ -209,25 +163,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/tasks/new': {
-      id: '/tasks/new'
-      path: '/tasks/new'
-      fullPath: '/tasks/new'
-      preLoaderRoute: typeof TasksNewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/mood/track': {
       id: '/mood/track'
       path: '/mood/track'
       fullPath: '/mood/track'
       preLoaderRoute: typeof MoodTrackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/habits/new': {
-      id: '/habits/new'
-      path: '/habits/new'
-      fullPath: '/habits/new'
-      preLoaderRoute: typeof HabitsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar/$timestamp': {
@@ -271,10 +211,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRouteWithChildren,
   DashboardRoute: DashboardRoute,
   NewRoute: NewRoute,
-  SettingsRoute: SettingsRoute,
-  HabitsNewRoute: HabitsNewRoute,
   MoodTrackRoute: MoodTrackRoute,
-  TasksNewRoute: TasksNewRoute,
   HabitsIdStatsRoute: HabitsIdStatsRoute,
   TasksIdEditRoute: TasksIdEditRoute,
 }

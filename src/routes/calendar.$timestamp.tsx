@@ -46,8 +46,10 @@ function CalendarDayComponent() {
   const date = new Date(parseInt(timestamp));
 
   const { data: mood, isLoading: isMoodLoading } = useMoodByDate(date);
-  const { data: tasks = [], isLoading: isTasksLoading } = useTasksByCompletedAt(date);
-  const { data: dueTasks = [], isLoading: isDueTasksLoading } = useTasksByDueDate(date);
+  const { data: tasks = [], isLoading: isTasksLoading } =
+    useTasksByCompletedAt(date);
+  const { data: dueTasks = [], isLoading: isDueTasksLoading } =
+    useTasksByDueDate(date);
 
   const completedTasks = tasks.filter((task: Task) => task.completedAt);
   const isLoading = isMoodLoading || isTasksLoading || isDueTasksLoading;
@@ -74,9 +76,7 @@ function CalendarDayComponent() {
           <div className="space-y-6">
             {/* Mood Section */}
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
-                Mood
-              </h3>
+              <h3 className="text-sm font-medium">Mood</h3>
               {mood ? (
                 <div className="flex items-center gap-3 p-4 bg-muted/50 rounded-2xl">
                   {(() => {
@@ -85,24 +85,18 @@ function CalendarDayComponent() {
                   })()}
                   <div className="flex-1">
                     <p className="font-medium">{moodLabels[mood.mood]}</p>
-                    {mood.note && (
-                      <p className="text-sm text-muted-foreground mt-1">
-                        {mood.note}
-                      </p>
-                    )}
+                    {mood.note && <p className="text-sm mt-1">{mood.note}</p>}
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  No mood tracked for this day
-                </p>
+                <p className="text-sm italic">No mood tracked for this day</p>
               )}
             </div>
 
             {/* Due on this day Section */}
             {dueTasks.length > 0 && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground">
+                <h3 className="text-sm font-medium">
                   Due on this day ({dueTasks.length})
                 </h3>
                 <div className="space-y-2">
@@ -118,9 +112,7 @@ function CalendarDayComponent() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium">{task.title}</p>
                         {task.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {task.description}
-                          </p>
+                          <p className="text-sm mt-1">{task.description}</p>
                         )}
                         {task.completedAt && (
                           <p className="text-xs text-success mt-1 flex items-center gap-1">
@@ -137,7 +129,7 @@ function CalendarDayComponent() {
 
             {/* Completed Tasks Section */}
             <div className="space-y-3">
-              <h3 className="text-sm font-medium text-muted-foreground">
+              <h3 className="text-sm font-medium">
                 Completed Tasks ({completedTasks.length})
               </h3>
               {completedTasks.length > 0 ? (
@@ -154,25 +146,21 @@ function CalendarDayComponent() {
                       <div className="flex-1 min-w-0">
                         <p className="font-medium">{task.title}</p>
                         {task.description && (
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {task.description}
-                          </p>
+                          <p className="text-sm mt-1">{task.description}</p>
                         )}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-muted-foreground italic">
-                  No tasks completed on this day
-                </p>
+                <p className="text-sm italic">No tasks completed on this day</p>
               )}
             </div>
 
             {/* All Tasks Section */}
             {tasks.length > completedTasks.length && (
               <div className="space-y-3">
-                <h3 className="text-sm font-medium text-muted-foreground">
+                <h3 className="text-sm font-medium">
                   Other Tasks ({tasks.length - completedTasks.length})
                 </h3>
                 <div className="space-y-2">
@@ -183,13 +171,11 @@ function CalendarDayComponent() {
                         key={task.id}
                         className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl"
                       >
-                        <div className="size-5 border-2 border-muted-foreground rounded-full mt-0.5" />
+                        <div className="size-5 border-2 rounded-full mt-0.5" />
                         <div className="flex-1 min-w-0">
                           <p className="font-medium">{task.title}</p>
                           {task.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {task.description}
-                            </p>
+                            <p className="text-sm mt-1">{task.description}</p>
                           )}
                         </div>
                       </div>

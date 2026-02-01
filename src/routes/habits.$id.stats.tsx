@@ -78,7 +78,7 @@ function HabitStatsPage() {
 
       if (isScheduled) {
         const entry = entries.find(
-          (e) => e.date === dateString && e.status === "completed"
+          (e) => e.date === dateString && e.status === "completed",
         );
         if (entry) {
           currentStreak++;
@@ -96,7 +96,7 @@ function HabitStatsPage() {
     let longestStreak = 0;
     let tempStreak = 0;
     const sortedEntries = [...completedEntries].sort((a, b) =>
-      a.date.localeCompare(b.date)
+      a.date.localeCompare(b.date),
     );
 
     for (let i = 0; i < sortedEntries.length; i++) {
@@ -174,25 +174,25 @@ function HabitStatsPage() {
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 bg-primary/10 rounded-2xl text-center">
             <p className="text-2xl font-bold">{stats.totalCompleted}</p>
-            <p className="text-sm text-muted-foreground">Total Completions</p>
+            <p className="text-sm">Total Completions</p>
           </div>
           <div className="p-4 bg-primary/10 rounded-2xl text-center">
             <p className="text-2xl font-bold">{stats.currentStreak}</p>
-            <p className="text-sm text-muted-foreground">Current Streak</p>
+            <p className="text-sm">Current Streak</p>
           </div>
           <div className="p-4 bg-primary/10 rounded-2xl text-center">
             <p className="text-2xl font-bold">{stats.longestStreak}</p>
-            <p className="text-sm text-muted-foreground">Longest Streak</p>
+            <p className="text-sm">Longest Streak</p>
           </div>
           <div className="p-4 bg-primary/10 rounded-2xl text-center">
             <p className="text-2xl font-bold">{stats.daysSinceCreated}</p>
-            <p className="text-sm text-muted-foreground">Days Tracked</p>
+            <p className="text-sm">Days Tracked</p>
           </div>
         </div>
 
         <CompletionCalendar entries={entries} rrule={habit.rrule} />
 
-        <div className="text-sm text-muted-foreground">
+        <div className="text-sm">
           Started {format(new Date(habit.createdAt), "MMMM d, yyyy")}
         </div>
       </DialogContent>
@@ -200,7 +200,13 @@ function HabitStatsPage() {
   );
 }
 
-function CompletionCalendar({ entries, rrule }: { entries: HabitEntry[]; rrule: string }) {
+function CompletionCalendar({
+  entries,
+  rrule,
+}: {
+  entries: HabitEntry[];
+  rrule: string;
+}) {
   const today = new Date();
 
   const completedDates = useMemo(() => {
