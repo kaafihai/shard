@@ -39,7 +39,9 @@ export function DatePicker({
             selected={value ? new Date(value) : undefined}
             onSelect={(date) => {
               if (date && !Array.isArray(date)) {
-                onChange(format(date, "yyyy-MM-dd"));
+                // Create a date at midnight in local timezone, then convert to ISO
+                const localMidnight = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+                onChange(localMidnight.toISOString());
                 setOpen(false);
               }
             }}

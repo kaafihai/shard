@@ -3,7 +3,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { useMoods } from "@/hooks/use-moods";
 import { useHabits, useAllHabitEntries } from "@/hooks/use-habits";
 import { Spinner } from "@/components/ui/spinner";
-import { ChartBarIcon, ChartLineUpIcon, CheckCircleIcon, CircleDashedIcon, DotIcon, XCircleIcon } from "@phosphor-icons/react";
+import { ChartBarIcon, ChartLineUpIcon, CheckCircleIcon, CircleDashedIcon,  XCircleIcon } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import { cn } from "@/lib/utils";
 import type { Habit, HabitEntry, MoodLevel } from "@/lib/types";
@@ -59,7 +59,7 @@ function DashboardPage() {
     (m) => m.value === mostFrequentMood
   )?.icon;
 
-  const { activityData, weeks, stats, startDate } = useMemo(() => {
+  const { activityData, weeks, startDate } = useMemo(() => {
     const today = new Date();
 
     // Find the earliest activity date
@@ -193,7 +193,7 @@ function DashboardPage() {
           <div className="space-y-4">
             <div className="bg-primary/10 p-8 rounded-4xl flex flex-row justify-between gap-2">
               {
-                Array.from({ length: 7 }).map((x, i) => {
+                Array.from({ length: 7 }).map((_, i) => {
                   const date = subDays(new Date(), 6 - i);
                   return <div key={date.toISOString()} className={cn("flex flex-col items-center gap-1 rounded-2xl p-2", i === 6 ? 'bg-primary text-primary-foreground font-bold' : '')}>
                     <span className="text-sm text-muted-foreground">

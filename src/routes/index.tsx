@@ -61,15 +61,7 @@ function ListItem({
       data-completed={completed}
       className="flex bg-primary/5 data-[completed=true]:bg-success/10 items-center gap-4 p-4 rounded-4xl transition-colors"
     >
-      <Button
-        size="icon"
-        variant={completed ? "ghost" : 'success'}
-        disabled={completed}
-        onClick={onToggle}
-      >
-        <CheckIcon />
-      </Button>
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 order-1 md:order-2">
         <h3
           className={`font-semibold ${completed ? "text-muted-foreground" : ""}`}
         >
@@ -80,7 +72,16 @@ function ListItem({
         )}
         {metadata}
       </div>
-      {actions && <div className="flex items-center gap-1">{actions}</div>}
+      {actions && <div className="flex items-center gap-1 order-2 md:order-3">{actions}</div>}
+      <Button
+        size="icon"
+        variant={completed ? "ghost" : 'success'}
+        disabled={completed}
+        onClick={onToggle}
+        className="order-3 md:order-1"
+      >
+        <CheckIcon />
+      </Button>
     </div>
   );
 }

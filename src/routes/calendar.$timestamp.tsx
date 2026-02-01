@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMoodByDate } from "@/hooks/use-moods";
-import { useTasksByCompletedAt } from "@/hooks/use-tasks";
+import { useTasksByCompletedAt, useTasksByDueDate } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import {
@@ -16,6 +16,7 @@ import {
   SmileyXEyesIcon,
   SmileyWinkIcon,
   CheckCircleIcon,
+  CalendarBlankIcon,
 } from "@phosphor-icons/react";
 import type { Task } from "@/lib/types";
 
@@ -46,9 +47,10 @@ function CalendarDayComponent() {
 
   const { data: mood, isLoading: isMoodLoading } = useMoodByDate(date);
   const { data: tasks = [], isLoading: isTasksLoading } = useTasksByCompletedAt(date);
+  const { data: dueTasks = [], isLoading: isDueTasksLoading } = useTasksByDueDate(date);
 
   const completedTasks = tasks.filter((task: Task) => task.completedAt);
-  const isLoading = isMoodLoading || isTasksLoading;
+  const isLoading = isMoodLoading || isTasksLoading || isDueTasksLoading;
 
   return (
     <Dialog
@@ -96,6 +98,42 @@ function CalendarDayComponent() {
                 </p>
               )}
             </div>
+
+            {/* Due on this day Section */}
+            {dueTasks.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Due on this day ({dueTasks.length})
+                </h3>
+                <div className="space-y-2">
+                  {dueTasks.map((task: Task) => (
+                    <div
+                      key={task.id}
+                      className="flex items-start gap-3 p-3 bg-amber-500/10 rounded-2xl"
+                    >
+                      <CalendarBlankIcon
+                        className="size-5 mt-0.5 text-amber-600"
+                        weight="fill"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium">{task.title}</p>
+                        {task.description && (
+                          <p className="text-sm text-muted-foreground mt-1">
+                            {task.description}
+                          </p>
+                        )}
+                        {task.completedAt && (
+                          <p className="text-xs text-success mt-1 flex items-center gap-1">
+                            <CheckCircleIcon className="size-3" />
+                            Completed
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Completed Tasks Section */}
             <div className="space-y-3">
