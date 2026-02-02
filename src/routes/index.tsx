@@ -5,6 +5,7 @@ import {
   useHabits,
   useHabitEntriesByDate,
   useToggleHabitEntry,
+  useCreateHabitEntry,
   getTodayDateString,
 } from "@/hooks/use-habits";
 import { useTodaysMood } from "@/hooks/use-moods";
@@ -16,6 +17,7 @@ import {
   PencilSimpleIcon,
   RepeatIcon,
   PlusIcon,
+  XCircleIcon,
 } from "@phosphor-icons/react";
 import { format } from "date-fns";
 import type { Task, Habit, HabitEntry } from "@/lib/types";
@@ -94,10 +96,12 @@ function ListItem({
   description,
   metadata,
   actions,
+  disabled,
 }: {
   completed: boolean;
   onToggle: () => void;
   title: string;
+  disabled?: boolean;
   description?: string;
   metadata?: React.ReactNode;
   actions?: React.ReactNode;
@@ -119,15 +123,18 @@ function ListItem({
           {actions}
         </div>
       )}
-      <Button
-        size="icon"
-        variant={completed ? "ghost" : "success"}
-        disabled={completed}
-        onClick={onToggle}
-        className="order-3 md:order-1"
-      >
-        <CheckIcon />
-      </Button>
+
+      {!disabled && (
+        <Button
+          size="icon"
+          variant={completed ? "ghost" : "success"}
+          disabled={completed}
+          onClick={onToggle}
+          className="order-3 md:order-1"
+        >
+          <CheckIcon />
+        </Button>
+      )}
     </div>
   );
 }
@@ -136,10 +143,12 @@ function HabitItem({
   habit,
   entry,
   onToggle,
+  onCancel,
 }: {
   habit: Habit;
   entry: HabitEntry | null;
   onToggle: (habit: Habit, entry: HabitEntry | null) => void;
+  onCancel: (habit: Habit) => void;
 }) {
   const isCompleted = entry?.status === "completed";
 
@@ -149,11 +158,37 @@ function HabitItem({
       onToggle={() => onToggle(habit, entry)}
       title={habit.title}
       description={habit.description}
+      disabled={entry?.status === "cancelled"}
       metadata={
         <p className="text-sm mt-1 flex items-center gap-1">
           <RepeatIcon className="size-3" />
           {formatRRule(habit.rrule)}
         </p>
+      }
+      actions={
+        !entry ? (
+          <>
+            <ButtonLink
+              variant="ghost"
+              size="icon"
+              to="/habits/$id/edit"
+              params={{ id: habit.id }}
+            >
+              <PencilSimpleIcon />
+            </ButtonLink>
+            <Button variant="ghost" size="icon" onClick={() => onCancel(habit)}>
+              <XCircleIcon />
+            </Button>
+          </>
+        ) : (
+          <>
+            {entry.status === "cancelled" && (
+              <Button size={"icon"} variant={"ghost"} disabled>
+                <XCircleIcon />
+              </Button>
+            )}
+          </>
+        )
       }
     />
   );
@@ -209,22 +244,21 @@ function TasksComponent() {
   const { data: habits = [], isLoading: isHabitsLoading } = useHabits();
   const todayDate = getTodayDateString();
   const { data: todayEntries = [] } = useHabitEntriesByDate(todayDate);
-  const { data: todaysMood, isLoading: isMoodLoading, isFetching: isMoodFetching } = useTodaysMood();
+  const {
+    data: todaysMood,
+    isLoading: isMoodLoading,
+    isFetching: isMoodFetching,
+  } = useTodaysMood();
   const [filter, setFilter] = useState<"active" | "completed" | "all">("all");
   const toggleTask = useToggleTask();
   const toggleHabitEntry = useToggleHabitEntry();
+  const createHabitEntry = useCreateHabitEntry();
 
   useEffect(() => {
     if (!isMoodLoading && !isMoodFetching && todaysMood === null) {
       navigate({ to: "/mood/track" });
     }
   }, [todaysMood, isMoodLoading, isMoodFetching, navigate]);
-
-  const filteredTasks = tasks.filter((task) => {
-    if (filter === "active") return !task.completedAt;
-    if (filter === "completed") return Boolean(task.completedAt);
-    return true;
-  });
 
   const todaysHabits = useMemo(() => {
     const today = new Date();
@@ -235,13 +269,48 @@ function TasksComponent() {
     return todayEntries.find((e) => e.habitId === habitId) || null;
   };
 
+  const isHabitCompleted = (habit: Habit) => {
+    return getEntryForHabit(habit.id)?.status === "completed";
+  };
+
+  const isHabitCancelled = (habit: Habit) => {
+    return getEntryForHabit(habit.id)?.status === "cancelled";
+  };
+
+  const activeTaskCount = tasks.filter((t) => !t.completedAt).length;
+  const completedTaskCount = tasks.length - activeTaskCount;
+  const activeHabitCount = todaysHabits.filter((h) => !isHabitCompleted(h) && !isHabitCancelled(h)).length;
+  const completedHabitCount = todaysHabits.filter((h) => isHabitCompleted(h)).length;
+  const cancelledHabitCount = todaysHabits.filter((h) => isHabitCancelled(h)).length;
+
+  const totalCount = tasks.length + todaysHabits.length;
+  const activeCount = activeTaskCount + activeHabitCount;
+  const completedCount = completedTaskCount + completedHabitCount;
+
+  const filteredTasks = tasks.filter((task) => {
+    if (filter === "active") return !task.completedAt;
+    if (filter === "completed") return Boolean(task.completedAt);
+    return true;
+  });
+
+  const filteredHabits = todaysHabits.filter((habit) => {
+    if (filter === "active") return !isHabitCompleted(habit) && !isHabitCancelled(habit);
+    if (filter === "completed") return isHabitCompleted(habit);
+    return true;
+  });
+
   const handleToggleHabit = (habit: Habit, entry: HabitEntry | null) => {
     toggleHabitEntry.mutate({ habit, date: todayDate, currentEntry: entry });
   };
 
-  const completedHabitsCount = todaysHabits.filter(
-    (h) => getEntryForHabit(h.id)?.status === "completed",
-  ).length;
+  const handleCancelHabit = (habit: Habit) => {
+    createHabitEntry.mutate({
+      habitId: habit.id,
+      date: todayDate,
+      status: "cancelled",
+      note: "",
+    });
+  };
 
   if (isLoading || isHabitsLoading) {
     return (
@@ -253,70 +322,46 @@ function TasksComponent() {
 
   return (
     <div className="mx-auto space-y-8">
-      {/* Today's Habits Section */}
-      <div className="flex justify-between items-end border-b pb-4">
-        <h2 className="text-3xl font-bold">Today's Habits</h2>
-        {todaysHabits.length > 0 && (
-          <span className="text-sm">
-            {completedHabitsCount}/{todaysHabits.length}
-          </span>
-        )}
-      </div>
-
-      {todaysHabits.length === 0 ? (
-        <div className="text-center py-8">No habits scheduled for today.</div>
-      ) : (
-        <div className="space-y-3">
-          {todaysHabits.map((habit) => (
-            <HabitItem
-              key={habit.id}
-              habit={habit}
-              entry={getEntryForHabit(habit.id)}
-              onToggle={handleToggleHabit}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Tasks Section */}
-      <div className="flex justify-between items-end border-b pb-4">
-        <h2 className="text-3xl font-bold">Tasks</h2>
-      </div>
-
       <div className="flex gap-2">
         <Button
           variant={filter === "all" ? "default" : "ghost"}
           onClick={() => setFilter("all")}
         >
-          All ({tasks.length})
+          All ({totalCount})
         </Button>
         <Button
           variant={filter === "active" ? "default" : "ghost"}
           onClick={() => setFilter("active")}
         >
-          Active ({tasks.filter((t) => !t.completedAt).length})
+          Active ({activeCount})
         </Button>
         <Button
           variant={filter === "completed" ? "default" : "ghost"}
           onClick={() => setFilter("completed")}
         >
-          Completed ({tasks.filter((t) => Boolean(t.completedAt)).length})
+          Completed ({completedCount})
         </Button>
       </div>
 
-      {filteredTasks.length === 0 && (
+      {filteredHabits.length === 0 && filteredTasks.length === 0 ? (
         <div className="text-center py-12">All done!</div>
-      )}
+      ) : (
+        <div className="space-y-3">
+          {filteredHabits.map((habit) => (
+            <HabitItem
+              key={habit.id}
+              habit={habit}
+              entry={getEntryForHabit(habit.id)}
+              onToggle={handleToggleHabit}
+              onCancel={handleCancelHabit}
+            />
+          ))}
 
-      <div className="space-y-3">
-        {filteredTasks.map((task) => (
-          <TaskItem
-            key={task.id}
-            task={task}
-            onToggle={toggleTask.mutate}
-          />
-        ))}
-      </div>
+          {filteredTasks.map((task) => (
+            <TaskItem key={task.id} task={task} onToggle={toggleTask.mutate} />
+          ))}
+        </div>
+      )}
 
       {/* Floating action button */}
       <ButtonLink

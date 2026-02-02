@@ -20,6 +20,7 @@ export async function initDatabase(): Promise<Database> {
   const migrations = [
     "migrations/001_initial.sql",
     "migrations/002_habits.sql",
+    "migrations/003_task_cancelled_at.sql",
   ];
 
   for (const migration of migrations) {
@@ -54,6 +55,7 @@ export async function getTasks(limit: number = 1000): Promise<Task[]> {
       created_at: string;
       updated_at: string;
       completed_at: string | null;
+      cancelled_at: string | null;
     }>
   >(`SELECT * FROM tasks ORDER BY completed_at IS NOT NULL, created_at DESC LIMIT $1`, [limit]);
 
@@ -65,6 +67,7 @@ export async function getTasks(limit: number = 1000): Promise<Task[]> {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,
+    cancelledAt: row.cancelled_at,
   }));
 }
 
@@ -84,6 +87,7 @@ export async function getTasksByDueDate(date: Date, limit: number = 1000): Promi
       created_at: string;
       updated_at: string;
       completed_at: string | null;
+      cancelled_at: string | null;
     }>
   >(`SELECT * FROM tasks WHERE due_date >= $1 AND due_date < $2 LIMIT $3`, [startOfDay.toISOString(), endOfDay.toISOString(), limit]);
 
@@ -95,6 +99,7 @@ export async function getTasksByDueDate(date: Date, limit: number = 1000): Promi
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,
+    cancelledAt: row.cancelled_at,
   }));
 }
 
@@ -114,6 +119,7 @@ export async function getTasksByCompletedAt(date: Date, limit: number = 1000): P
       created_at: string;
       updated_at: string;
       completed_at: string | null;
+      cancelled_at: string | null;
     }>
   >(`SELECT * FROM tasks WHERE completed_at >= $1 AND completed_at < $2 LIMIT $3`, [startOfDay.toISOString(), endOfDay.toISOString(), limit]);
 
@@ -125,6 +131,7 @@ export async function getTasksByCompletedAt(date: Date, limit: number = 1000): P
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,
+    cancelledAt: row.cancelled_at,
   }));
 }
 
@@ -140,6 +147,7 @@ export async function getTaskById(id: string): Promise<Task | null> {
       created_at: string;
       updated_at: string;
       completed_at: string | null;
+      cancelled_at: string | null;
     }>
   >(`SELECT * FROM tasks WHERE id = $1`, [id]);
 
@@ -154,6 +162,7 @@ export async function getTaskById(id: string): Promise<Task | null> {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     completedAt: row.completed_at,
+    cancelledAt: row.cancelled_at,
   };
 }
 
@@ -161,9 +170,9 @@ export async function createTask(task: Task): Promise<Task> {
   const database = await getDb();
 
   await database.execute(
-    `INSERT INTO tasks (id, title, description, due_date, created_at, updated_at, completed_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [task.id, task.title, task.description, task.dueDate, task.createdAt, task.updatedAt, task.completedAt]
+    `INSERT INTO tasks (id, title, description, due_date, created_at, updated_at, completed_at, cancelled_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+    [task.id, task.title, task.description, task.dueDate, task.createdAt, task.updatedAt, task.completedAt, task.cancelledAt]
   );
 
   return task;
@@ -175,8 +184,8 @@ export async function updateTask(task: Task): Promise<Task> {
   const now = new Date().toISOString();
 
   await database.execute(
-    `UPDATE tasks SET title = $1, description = $2, due_date = $3, completed_at = $4, updated_at = $5 WHERE id = $6`,
-    [task.title, task.description, task.dueDate, task.completedAt, now, task.id]
+    `UPDATE tasks SET title = $1, description = $2, due_date = $3, completed_at = $4, cancelled_at = $5, updated_at = $6 WHERE id = $7`,
+    [task.title, task.description, task.dueDate, task.completedAt, task.cancelledAt, now, task.id]
   );
 
   const updatedTask = await getTaskById(task.id);

@@ -43,7 +43,7 @@ interface DayActivity {
 function DashboardPage() {
   const { data: tasks, isLoading: tasksLoading } = useTasks();
   const { data: moods, isLoading: moodsLoading } = useMoods();
-  const { data: habits, isLoading: habitsLoading } = useHabits();
+  const { data: habits, isLoading: habitsLoading } = useHabits(true);
   const { data: habitEntries, isLoading: habitEntriesLoading } =
     useAllHabitEntries();
 

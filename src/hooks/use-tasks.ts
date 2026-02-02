@@ -67,6 +67,7 @@ export function useCreateTask() {
         description: input.description,
         dueDate: input.dueDate,
         completedAt: input.completedAt,
+        cancelledAt: input.cancelledAt,
         createdAt: now,
         updatedAt: now,
       };

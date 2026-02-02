@@ -57,6 +57,7 @@ function NewItemComponent() {
           description,
           dueDate,
           completedAt: null,
+          cancelledAt: null,
         });
       }
       navigate({ to: "/" });

@@ -17,6 +17,7 @@ import { Route as MoodTrackRouteImport } from './routes/mood.track'
 import { Route as CalendarTimestampRouteImport } from './routes/calendar.$timestamp'
 import { Route as TasksIdEditRouteImport } from './routes/tasks.$id.edit'
 import { Route as HabitsIdStatsRouteImport } from './routes/habits.$id.stats'
+import { Route as HabitsIdEditRouteImport } from './routes/habits.$id.edit'
 
 const NewRoute = NewRouteImport.update({
   id: '/new',
@@ -58,6 +59,11 @@ const HabitsIdStatsRoute = HabitsIdStatsRouteImport.update({
   path: '/habits/$id/stats',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HabitsIdEditRoute = HabitsIdEditRouteImport.update({
+  id: '/habits/$id/edit',
+  path: '/habits/$id/edit',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -66,6 +72,7 @@ export interface FileRoutesByFullPath {
   '/new': typeof NewRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
   '/mood/track': typeof MoodTrackRoute
+  '/habits/$id/edit': typeof HabitsIdEditRoute
   '/habits/$id/stats': typeof HabitsIdStatsRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
 }
@@ -76,6 +83,7 @@ export interface FileRoutesByTo {
   '/new': typeof NewRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
   '/mood/track': typeof MoodTrackRoute
+  '/habits/$id/edit': typeof HabitsIdEditRoute
   '/habits/$id/stats': typeof HabitsIdStatsRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
 }
@@ -87,6 +95,7 @@ export interface FileRoutesById {
   '/new': typeof NewRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
   '/mood/track': typeof MoodTrackRoute
+  '/habits/$id/edit': typeof HabitsIdEditRoute
   '/habits/$id/stats': typeof HabitsIdStatsRoute
   '/tasks/$id/edit': typeof TasksIdEditRoute
 }
@@ -99,6 +108,7 @@ export interface FileRouteTypes {
     | '/new'
     | '/calendar/$timestamp'
     | '/mood/track'
+    | '/habits/$id/edit'
     | '/habits/$id/stats'
     | '/tasks/$id/edit'
   fileRoutesByTo: FileRoutesByTo
@@ -109,6 +119,7 @@ export interface FileRouteTypes {
     | '/new'
     | '/calendar/$timestamp'
     | '/mood/track'
+    | '/habits/$id/edit'
     | '/habits/$id/stats'
     | '/tasks/$id/edit'
   id:
@@ -119,6 +130,7 @@ export interface FileRouteTypes {
     | '/new'
     | '/calendar/$timestamp'
     | '/mood/track'
+    | '/habits/$id/edit'
     | '/habits/$id/stats'
     | '/tasks/$id/edit'
   fileRoutesById: FileRoutesById
@@ -129,6 +141,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   NewRoute: typeof NewRoute
   MoodTrackRoute: typeof MoodTrackRoute
+  HabitsIdEditRoute: typeof HabitsIdEditRoute
   HabitsIdStatsRoute: typeof HabitsIdStatsRoute
   TasksIdEditRoute: typeof TasksIdEditRoute
 }
@@ -191,6 +204,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HabitsIdStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/habits/$id/edit': {
+      id: '/habits/$id/edit'
+      path: '/habits/$id/edit'
+      fullPath: '/habits/$id/edit'
+      preLoaderRoute: typeof HabitsIdEditRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -212,6 +232,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   NewRoute: NewRoute,
   MoodTrackRoute: MoodTrackRoute,
+  HabitsIdEditRoute: HabitsIdEditRoute,
   HabitsIdStatsRoute: HabitsIdStatsRoute,
   TasksIdEditRoute: TasksIdEditRoute,
 }

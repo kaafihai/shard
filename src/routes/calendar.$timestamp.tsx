@@ -103,10 +103,10 @@ function CalendarDayComponent() {
                   {dueTasks.map((task: Task) => (
                     <div
                       key={task.id}
-                      className="flex items-start gap-3 p-3 bg-amber-500/10 rounded-2xl"
+                      className="flex items-start gap-3 p-3 rounded-2xl"
                     >
                       <CalendarBlankIcon
-                        className="size-5 mt-0.5 text-amber-600"
+                        className="size-5 mt-0.5"
                         weight="fill"
                       />
                       <div className="flex-1 min-w-0">

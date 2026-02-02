@@ -14,6 +14,7 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   completedAt: string | null;
+  cancelledAt: string | null;
 }
 
 export type TaskInput = Omit<Task, "id" | "createdAt" | "updatedAt">;

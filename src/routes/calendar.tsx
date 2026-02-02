@@ -163,12 +163,12 @@ function CalendarPage() {
   return (
     <div className="mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-h-12">
           <CalendarIcon className="size-8" />
           <h2 className="text-3xl font-bold">Calendar</h2>
         </div>
         {weekOffset > 0 && (
-          <Button variant="ghost" onClick={goToCurrentWeek}>
+          <Button variant="default" onClick={goToCurrentWeek}>
             Today
           </Button>
         )}
@@ -257,17 +257,6 @@ function WeekSection({
   }>;
   onDayClick: (date: Date) => void;
 }) {
-  const getMoodBgClass = (mood: Mood | null) => {
-    if (!mood) return "bg-primary/5";
-    const moodValue = mood.mood;
-    if (moodValue === "great") return "bg-green-500/10";
-    if (moodValue === "good") return "bg-blue-500/10";
-    if (moodValue === "okay") return "bg-primary/10";
-    if (moodValue === "bad") return "bg-orange-500/10";
-    if (moodValue === "terrible") return "bg-red-500/10";
-    return "bg-primary/5";
-  };
-
   return (
     <div className="space-y-2">
       <h3 className="text-sm font-medium">{title}</h3>
@@ -279,7 +268,6 @@ function WeekSection({
               : null;
             const dayIsToday = isToday(date);
             const isFuture = isAfter(date, new Date());
-            const moodBgClass = getMoodBgClass(mood);
             const hasDueTasks = dueTasks.length > 0;
             const isClickable = !isFuture || hasDueTasks;
 
@@ -290,11 +278,10 @@ function WeekSection({
                 onClick={() => onDayClick(date)}
                 disabled={!isClickable}
                 className={cn(
-                  "flex flex-col items-center p-2 rounded-2xl transition-colors min-h-24",
+                  "flex flex-col bg-primary/5 items-center p-2 rounded-2xl transition-colors min-h-24",
                   isClickable && "hover:bg-primary/15 cursor-pointer",
                   !isClickable && "opacity-30 cursor-not-allowed",
                   dayIsToday && "ring-2 ring-primary",
-                  isFuture ? "bg-primary/5" : moodBgClass,
                 )}
               >
                 <span className="text-xs">{format(date, "EEE")}</span>
@@ -326,7 +313,7 @@ function WeekSection({
                     </div>
                   )}
                   {dueTasks.length > 0 && (
-                    <div className="flex items-center gap-0.5 text-amber-600">
+                    <div className="flex items-center gap-0.5">
                       <CalendarBlankIcon className="size-4" />
                       <span className="text-xs font-medium">
                         {dueTasks.length}
