@@ -50,6 +50,8 @@ function NewItemComponent() {
           description,
           rrule: rrule,
           archivedAt: null,
+          pausedAt: null,
+          cancelledAt: null,
         });
       } else {
         await createTask.mutateAsync({

@@ -4,7 +4,6 @@ import { useMoods } from "@/hooks/use-moods";
 import { useHabits, useAllHabitEntries } from "@/hooks/use-habits";
 import { Spinner } from "@/components/ui/spinner";
 import {
-  StatsIcon,
   TrendLineIcon,
   CompletedIcon,
   PendingIcon,

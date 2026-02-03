@@ -11,17 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   useHabits,
   useUpdateHabit,
-  useArchiveHabit,
-  useHabitEntriesByDate,
-  useCreateHabitEntry,
-  getTodayDateString,
 } from "@/hooks/use-habits";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { PauseIcon } from "@/lib/icons";
 
 export const Route = createFileRoute("/habits/$id/edit")({
   component: EditHabitComponent,
@@ -33,17 +29,12 @@ function EditHabitComponent() {
   const { data: habits = [], isLoading } = useHabits();
   const updateHabit = useUpdateHabit();
 
-  const archiveHabit = useArchiveHabit();
-  const createHabitEntry = useCreateHabitEntry();
-  const todayDate = getTodayDateString();
-  const { data: todayEntries = [] } = useHabitEntriesByDate(todayDate);
-
   const habit = habits.find((h) => h.id === id);
-  const todayEntry = todayEntries.find((e) => e.habitId === id) || null;
 
   const [formData, setFormData] = useState({
     title: habit?.title ?? "",
     description: habit?.description ?? "",
+    cancelled: Boolean(habit?.cancelledAt),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -54,24 +45,17 @@ function EditHabitComponent() {
     }
 
     try {
+      // Update habit details including cancel state
       await updateHabit.mutateAsync({
         ...habit,
         title: formData.title,
         description: formData.description,
+        cancelledAt: formData.cancelled ? new Date().toISOString() : null,
       });
+
       history.back();
     } catch (error) {
       toast.error(`Failed to update habit: ${error}`);
-    }
-  };
-
-  const handlePause = async () => {
-    if (!habit) return;
-    try {
-      archiveHabit.mutate(habit);
-      history.back();
-    } catch (error) {
-      toast.error(`Failed to pause habit: ${error}`);
     }
   };
 
@@ -144,13 +128,23 @@ function EditHabitComponent() {
             />
           </div>
 
-          <DialogFooter className="flex justify-between flex-row">
-            <Button type="button" variant="destructive" onClick={handlePause}>
-              <PauseIcon />
-              Pause
-            </Button>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="cancelled"
+              checked={formData.cancelled}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, cancelled: checked === true })
+              }
+            />
+            <Label htmlFor="cancelled" className="cursor-pointer">
+              Cancel Habit
+            </Label>
+          </div>
+
+          <DialogFooter>
             <Button
               type="submit"
+              className="w-full"
               disabled={!formData.title.trim() || updateHabit.isPending}
             >
               Save Changes

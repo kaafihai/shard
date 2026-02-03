@@ -25,7 +25,9 @@
     "active": true,
     "targets": "all",
     "resources": {
-      "../migrations/*.sql": "migrations/"
+      "../migrations/*.sql": "migrations/",
+      "../migrations/003_task_cancelled_at.sql": "migrations/003_task_cancelled_at.sql",
+      "../migrations/004_habit_paused_cancelled.sql": "migrations/004_habit_paused_cancelled.sql"
     },
     "icon": [
       "icons/32x32.png",

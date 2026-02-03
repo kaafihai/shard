@@ -11,11 +11,11 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
-import { useTasks, useUpdateTask, useDeleteTask } from "@/hooks/use-tasks";
+import { useTasks, useUpdateTask } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { DeleteIcon } from "@/lib/icons";
 
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: EditTaskComponent,
@@ -26,7 +26,6 @@ function EditTaskComponent() {
   const { id } = Route.useParams();
   const { data: tasks = [], isLoading } = useTasks();
   const updateTask = useUpdateTask();
-  const deleteTask = useDeleteTask();
 
   const task = tasks.find((t) => t.id === id);
 
@@ -34,6 +33,7 @@ function EditTaskComponent() {
     title: task?.title ?? "",
     description: task?.description ?? "",
     dueDate: task?.dueDate ?? null,
+    cancelled: Boolean(task?.cancelledAt),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -49,20 +49,11 @@ function EditTaskComponent() {
         title: formData.title,
         description: formData.description,
         dueDate: formData.dueDate,
+        cancelledAt: formData.cancelled ? new Date().toISOString() : null,
       });
       history.back();
     } catch (error) {
       toast.error(`Failed to update task: ${error}`);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (!task) return;
-    try {
-      await deleteTask.mutateAsync(task);
-      history.back();
-    } catch (error) {
-      toast.error(`Failed to delete task: ${error}`);
     }
   };
 
@@ -143,19 +134,23 @@ function EditTaskComponent() {
             />
           </div>
 
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="cancelled"
+              checked={formData.cancelled}
+              onCheckedChange={(checked) =>
+                setFormData({ ...formData, cancelled: checked === true })
+              }
+            />
+            <Label htmlFor="cancelled" className="cursor-pointer">
+              Cancel Task
+            </Label>
+          </div>
+
           <DialogFooter>
             <Button
-              type="button"
-              variant="destructive"
-              disabled={deleteTask.isPending}
-              onClick={handleDelete}
-            >
-              <DeleteIcon />
-              Delete
-            </Button>
-            <Button
-              className={"grow"}
               type="submit"
+              className="w-full"
               disabled={!formData.title.trim() || updateTask.isPending}
             >
               Save Changes

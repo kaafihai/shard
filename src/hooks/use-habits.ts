@@ -13,6 +13,7 @@ import {
   updateHabitEntry,
   deleteHabitEntry,
   initDatabase,
+  backpopulateHabitEntries,
 } from '@/lib/db';
 
 const HABITS_QUERY_KEY = ['habits'];
@@ -23,6 +24,7 @@ let dbInitialized = false;
 async function ensureDbInitialized() {
   if (!dbInitialized) {
     await initDatabase();
+    await backpopulateHabitEntries();
     dbInitialized = true;
   }
 }
@@ -60,6 +62,8 @@ export function useCreateHabit() {
         description: input.description,
         rrule: input.rrule,
         archivedAt: input.archivedAt,
+        pausedAt: input.pausedAt,
+        cancelledAt: input.cancelledAt,
         createdAt: now,
         updatedAt: now,
       };

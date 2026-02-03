@@ -23,6 +23,8 @@ export function HabitForm({ onSuccess }: HabitFormProps) {
     description: "",
     rrule: "FREQ=DAILY",
     archivedAt: null,
+    pausedAt: null,
+    cancelledAt: null,
   });
 
   const handleRRuleChange = (rrule: string | null) => {

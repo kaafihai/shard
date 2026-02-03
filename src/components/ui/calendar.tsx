@@ -168,7 +168,7 @@ function Calendar({
               className={cn(
                 "aspect-square flex items-center justify-center text-sm rounded-4xl transition-colors select-none",
                 "hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                dayToday && "bg-muted font-medium",
+                dayToday && !daySelected && "text-destructive font-medium",
                 daySelected &&
                   !modifierClasses &&
                   "bg-primary text-primary-foreground",

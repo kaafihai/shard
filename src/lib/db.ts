@@ -21,6 +21,7 @@ export async function initDatabase(): Promise<Database> {
     "migrations/001_initial.sql",
     "migrations/002_habits.sql",
     "migrations/003_task_cancelled_at.sql",
+    "migrations/004_habit_paused_cancelled.sql",
   ];
 
   for (const migration of migrations) {
@@ -364,6 +365,8 @@ export async function getHabits(includeArchived: boolean = false): Promise<Habit
       created_at: string;
       updated_at: string;
       archived_at: string | null;
+      paused_at: string | null;
+      cancelled_at: string | null;
     }>
   >(query);
 
@@ -375,6 +378,8 @@ export async function getHabits(includeArchived: boolean = false): Promise<Habit
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     archivedAt: row.archived_at,
+    pausedAt: row.paused_at,
+    cancelledAt: row.cancelled_at,
   }));
 }
 
@@ -390,6 +395,8 @@ export async function getHabitById(id: string): Promise<Habit | null> {
       created_at: string;
       updated_at: string;
       archived_at: string | null;
+      paused_at: string | null;
+      cancelled_at: string | null;
     }>
   >(`SELECT * FROM habits WHERE id = $1`, [id]);
 
@@ -404,6 +411,8 @@ export async function getHabitById(id: string): Promise<Habit | null> {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     archivedAt: row.archived_at,
+    pausedAt: row.paused_at,
+    cancelledAt: row.cancelled_at,
   };
 }
 
@@ -411,9 +420,9 @@ export async function createHabit(habit: Habit): Promise<Habit> {
   const database = await getDb();
 
   await database.execute(
-    `INSERT INTO habits (id, title, description, rrule, created_at, updated_at, archived_at)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-    [habit.id, habit.title, habit.description, habit.rrule, habit.createdAt, habit.updatedAt, habit.archivedAt]
+    `INSERT INTO habits (id, title, description, rrule, created_at, updated_at, archived_at, paused_at, cancelled_at)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+    [habit.id, habit.title, habit.description, habit.rrule, habit.createdAt, habit.updatedAt, habit.archivedAt, habit.pausedAt, habit.cancelledAt]
   );
 
   return habit;
@@ -425,8 +434,8 @@ export async function updateHabit(habit: Habit): Promise<Habit> {
   const now = new Date().toISOString();
 
   await database.execute(
-    `UPDATE habits SET title = $1, description = $2, rrule = $3, archived_at = $4, updated_at = $5 WHERE id = $6`,
-    [habit.title, habit.description, habit.rrule, habit.archivedAt, now, habit.id]
+    `UPDATE habits SET title = $1, description = $2, rrule = $3, archived_at = $4, paused_at = $5, cancelled_at = $6, updated_at = $7 WHERE id = $8`,
+    [habit.title, habit.description, habit.rrule, habit.archivedAt, habit.pausedAt, habit.cancelledAt, now, habit.id]
   );
 
   const updatedHabit = await getHabitById(habit.id);
@@ -577,4 +586,70 @@ export async function deleteHabitEntry(entry: HabitEntry): Promise<HabitEntry> {
   await database.execute(`DELETE FROM habit_entries WHERE id = $1`, [entry.id]);
 
   return entry;
+}
+
+// =============================================================================
+// HABIT BACKPOPULATION
+// =============================================================================
+
+// Helper function to check if a habit is scheduled for a given date
+function isHabitScheduledForDate(habit: Habit, date: Date): boolean {
+  // Parse RRULE to determine if habit is scheduled
+  const freqMatch = habit.rrule.match(/FREQ=(\w+)/);
+  const frequency = freqMatch?.[1] || "DAILY";
+
+  if (frequency === "DAILY") {
+    return true;
+  }
+
+  if (frequency === "WEEKLY") {
+    const daysMatch = habit.rrule.match(/BYDAY=([A-Z,]+)/);
+    const days = daysMatch ? daysMatch[1].split(",") : [];
+    const dayOfWeek = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"][date.getDay()];
+    return days.includes(dayOfWeek);
+  }
+
+  return true;
+}
+
+export async function backpopulateHabitEntries(): Promise<void> {
+  // Ensure database is initialized
+  await getDb();
+
+  // Get all active habits (not archived, not paused, not cancelled)
+  const habits = await getHabits(false);
+  const activeHabits = habits.filter(
+    (h) => !h.pausedAt && !h.cancelledAt
+  );
+
+  // Get today's date as YYYY-MM-DD
+  const today = new Date();
+  const todayString = today.toISOString().split("T")[0];
+
+  // Get all existing entries for today
+  const todayEntries = await getHabitEntriesByDate(todayString);
+  const existingHabitIds = new Set(todayEntries.map((e) => e.habitId));
+
+  // For each active habit, check if it's scheduled for today and create entry if needed
+  for (const habit of activeHabits) {
+    // Skip if entry already exists
+    if (existingHabitIds.has(habit.id)) {
+      continue;
+    }
+
+    // Check if habit is scheduled for today
+    if (isHabitScheduledForDate(habit, today)) {
+      // Create entry with "not_scheduled" status as placeholder
+      const now = new Date().toISOString();
+      const entry: HabitEntry = {
+        id: crypto.randomUUID(),
+        habitId: habit.id,
+        date: todayString,
+        status: "not_scheduled",
+        note: "",
+        createdAt: now,
+      };
+      await createHabitEntry(entry);
+    }
+  }
 }

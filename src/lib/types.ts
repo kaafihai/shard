@@ -46,6 +46,8 @@ export interface Habit {
   createdAt: string;
   updatedAt: string;
   archivedAt: string | null;
+  pausedAt: string | null;
+  cancelledAt: string | null;
 }
 
 export type HabitInput = Omit<Habit, "id" | "createdAt" | "updatedAt">;

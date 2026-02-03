@@ -81,6 +81,7 @@ export function TaskForm({ onSuccess }: TaskFormProps) {
       <DialogFooter>
         <Button
           type="submit"
+          className="w-full"
           disabled={!formData.title.trim() || createTask.isPending}
         >
           Create Task
