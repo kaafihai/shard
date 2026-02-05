@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { RRulePicker } from "@/components/rrule-picker";
 import {
   useHabits,
   useUpdateHabit,
@@ -34,7 +35,18 @@ function EditHabitComponent() {
   const [formData, setFormData] = useState({
     title: habit?.title ?? "",
     description: habit?.description ?? "",
+    rrule: habit?.rrule ?? "FREQ=DAILY",
   });
+
+  useEffect(() => {
+    if (habit) {
+      setFormData({
+        title: habit.title,
+        description: habit.description ?? "",
+        rrule: habit.rrule,
+      });
+    }
+  }, [habit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +61,7 @@ function EditHabitComponent() {
         ...habit,
         title: formData.title,
         description: formData.description,
+        rrule: formData.rrule,
       });
 
       history.back();
@@ -155,6 +168,12 @@ function EditHabitComponent() {
               rows={4}
             />
           </div>
+
+          <RRulePicker
+            value={formData.rrule}
+            onChange={(rrule) => setFormData({ ...formData, rrule: rrule ?? "FREQ=DAILY" })}
+            allowNone={false}
+          />
 
           <DialogFooter className="flex-row gap-2">
             {isPaused ? (

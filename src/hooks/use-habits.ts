@@ -14,6 +14,7 @@ import {
   deleteHabitEntry,
   initDatabase,
   backpopulateHabitEntries,
+  backpopulateHabitEntriesForHabit,
 } from '@/lib/db';
 
 const HABITS_QUERY_KEY = ['habits'];
@@ -67,10 +68,14 @@ export function useCreateHabit() {
         createdAt: now,
         updatedAt: now,
       };
-      return createHabit(newHabit);
+      const habit = await createHabit(newHabit);
+      // Backpopulate entries for the new habit
+      await backpopulateHabitEntriesForHabit(habit);
+      return habit;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HABITS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: HABIT_ENTRIES_QUERY_KEY });
     },
   });
 }
@@ -81,10 +86,14 @@ export function useUpdateHabit() {
   return useMutation({
     mutationFn: async (habit: Habit) => {
       await ensureDbInitialized();
-      return updateHabit(habit);
+      const updatedHabit = await updateHabit(habit);
+      // Backpopulate entries for the updated habit
+      await backpopulateHabitEntriesForHabit(updatedHabit);
+      return updatedHabit;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HABITS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: HABIT_ENTRIES_QUERY_KEY });
     },
   });
 }
@@ -192,35 +201,14 @@ export function useDeleteHabitEntry() {
   });
 }
 
-export function useToggleHabitEntry() {
+export function useCompleteHabitEntry() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ habit, date, currentEntry }: { habit: Habit; date: string; currentEntry: HabitEntry | null }) => {
+    mutationFn: async ({ entry }: { entry: HabitEntry }) => {
       await ensureDbInitialized();
-
-      if (currentEntry) {
-        // Toggle between completed and not (delete entry to mark as pending)
-        if (currentEntry.status === 'completed') {
-          await deleteHabitEntry(currentEntry);
-          return null;
-        } else {
-          // Update to completed
-          return updateHabitEntry({ ...currentEntry, status: 'completed' });
-        }
-      } else {
-        // Create new completed entry
-        const now = new Date().toISOString();
-        const newEntry: HabitEntry = {
-          id: uuidv4(),
-          habitId: habit.id,
-          date,
-          status: 'completed',
-          note: '',
-          createdAt: now,
-        };
-        return createHabitEntry(newEntry);
-      }
+      // Update entry to completed status
+      return updateHabitEntry({ ...entry, status: 'completed' });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: HABIT_ENTRIES_QUERY_KEY });
@@ -228,8 +216,11 @@ export function useToggleHabitEntry() {
   });
 }
 
-// Helper to get today's date as YYYY-MM-DD
+// Helper to get today's date as YYYY-MM-DD in local timezone
 export function getTodayDateString(): string {
   const today = new Date();
-  return today.toISOString().split('T')[0];
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

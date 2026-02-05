@@ -1,5 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -7,16 +8,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -25,15 +16,21 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { useTasks, useUpdateTask } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
-import { ArchiveIcon } from "@/lib/icons";
+import { ArchiveIcon, UndoIcon, DateIcon } from "@/lib/icons";
 
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: EditTaskComponent,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      readonly: search?.readonly === 'true' || search?.readonly === true,
+    };
+  },
 });
 
 function EditTaskComponent() {
   const { history } = useRouter();
   const { id } = Route.useParams();
+  const { readonly } = Route.useSearch();
   const { data: tasks = [], isLoading } = useTasks();
   const updateTask = useUpdateTask();
 
@@ -46,6 +43,17 @@ function EditTaskComponent() {
   });
 
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
+
+  useEffect(() => {
+    if (task) {
+      setFormData({
+        title: task.title,
+        description: task.description ?? "",
+        dueDate: task.dueDate ?? null,
+      });
+    }
+  }, [task]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +78,7 @@ function EditTaskComponent() {
   const handleArchive = async () => {
     if (!task) return;
 
+    setIsArchiving(true);
     try {
       await updateTask.mutateAsync({
         ...task,
@@ -79,6 +88,21 @@ function EditTaskComponent() {
       history.back();
     } catch (error) {
       toast.error(`Failed to archive task: ${error}`);
+      setIsArchiving(false);
+    }
+  };
+
+  const handleMarkIncomplete = async () => {
+    if (!task) return;
+
+    try {
+      await updateTask.mutateAsync({
+        ...task,
+        completedAt: null,
+      });
+      history.back();
+    } catch (error) {
+      toast.error(`Failed to mark task as incomplete: ${error}`);
     }
   };
 
@@ -119,11 +143,40 @@ function EditTaskComponent() {
         }
       }}
     >
-      <DialogContent>
+      <DialogContent className={showArchiveConfirm ? "min-h-0" : undefined}>
         <DialogHeader>
-          <DialogTitle>Edit Task</DialogTitle>
+          <DialogTitle>
+            {showArchiveConfirm ? 'Archive Task' : readonly ? 'Task Details' : 'Edit Task'}
+          </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        {showArchiveConfirm ? (
+          <>
+            <p className="text-sm">
+              Are you sure you want to archive this task? You can always unarchive it later.
+            </p>
+            <DialogFooter className="flex-row gap-2 flex-none -mb-6">
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setShowArchiveConfirm(false)}
+                disabled={isArchiving}
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={handleArchive}
+                disabled={isArchiving}
+                className="flex-1"
+              >
+                Archive
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="title">Title</Label>
             <Input
@@ -135,6 +188,8 @@ function EditTaskComponent() {
               placeholder="Enter task title"
               required
               autoFocus
+              readOnly={readonly}
+              disabled={readonly}
             />
           </div>
 
@@ -148,53 +203,71 @@ function EditTaskComponent() {
               }
               placeholder="Add details about this task"
               rows={4}
+              readOnly={readonly}
+              disabled={readonly}
             />
           </div>
 
           <div className="flex flex-col gap-2">
             <Label htmlFor="dueDate">Due Date</Label>
-            <DatePicker
-              value={formData.dueDate}
-              onChange={(date) => setFormData({ ...formData, dueDate: date })}
-            />
+            {readonly ? (
+              <div className="flex items-center gap-2 h-12 px-3 bg-input/10 border rounded-4xl text-sm opacity-50">
+                <DateIcon className="size-4" />
+                {formData.dueDate ? format(new Date(formData.dueDate), "PPP") : "No due date"}
+              </div>
+            ) : (
+              <DatePicker
+                value={formData.dueDate}
+                onChange={(date) => setFormData({ ...formData, dueDate: date })}
+              />
+            )}
           </div>
 
-          <DialogFooter className="flex-row gap-2">
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => setShowArchiveConfirm(true)}
-              disabled={updateTask.isPending}
-            >
-              <ArchiveIcon />
-              Archive
-            </Button>
-            <Button
-              type="submit"
-              className="flex-1"
-              disabled={!formData.title.trim() || updateTask.isPending}
-            >
-              Save Changes
-            </Button>
-          </DialogFooter>
+          {!readonly && (
+            <DialogFooter className="flex-row gap-2">
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setShowArchiveConfirm(true)}
+                disabled={updateTask.isPending}
+              >
+                <ArchiveIcon />
+                Archive
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={!formData.title.trim() || updateTask.isPending}
+              >
+                Save Changes
+              </Button>
+            </DialogFooter>
+          )}
+          {readonly && (
+            <DialogFooter className="flex-row gap-2">
+              {task.completedAt && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={handleMarkIncomplete}
+                  disabled={updateTask.isPending}
+                >
+                  <UndoIcon />
+                  Mark as incomplete
+                </Button>
+              )}
+              <Button
+                type="button"
+                onClick={() => history.back()}
+                className="flex-1"
+              >
+                Close
+              </Button>
+            </DialogFooter>
+          )}
         </form>
+        )}
       </DialogContent>
-      <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Archive Task</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you sure you want to archive this task? You can always unarchive it later.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction variant="destructive" onClick={handleArchive}>
-              Archive
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </Dialog>
   );
 }

@@ -22,7 +22,7 @@ export function DatePicker({
     <div className="flex gap-2">
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger
-          render={<Button className="bg-input/10" variant="ghost" />}
+          render={<Button className="bg-input/10 border" variant="ghost" />}
           className="flex-1 px-2 justify-start text-left font-normal"
         >
           <DateIcon data-icon="inline-start" className="size-4" />

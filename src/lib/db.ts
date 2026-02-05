@@ -609,44 +609,79 @@ function isHabitScheduledForDate(habit: Habit, date: Date): boolean {
   return true;
 }
 
+// Backpopulate entries for a single habit from its updated_at to today
+export async function backpopulateHabitEntriesForHabit(habit: Habit): Promise<void> {
+  // Skip if habit is paused or archived
+  if (habit.pausedAt || habit.archivedAt) {
+    return;
+  }
+
+  const database = await getDb();
+
+  // Get all existing entries for this habit
+  const existingEntries = await database.select<
+    Array<{
+      date: string;
+    }>
+  >(`SELECT date FROM habit_entries WHERE habit_id = $1`, [habit.id]);
+  const existingDates = new Set(existingEntries.map((e) => e.date));
+
+  // Helper to format date as YYYY-MM-DD in local timezone
+  const formatDateLocal = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Start from updated_at (or created_at if updated_at is not set)
+  const startDate = new Date(habit.updatedAt || habit.createdAt);
+  startDate.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Iterate through each day from start to today
+  const currentDate = new Date(startDate);
+  while (currentDate <= today) {
+    const dateString = formatDateLocal(currentDate);
+
+    // Skip if entry already exists for this date
+    if (!existingDates.has(dateString)) {
+      // Check if habit is scheduled for this date
+      if (isHabitScheduledForDate(habit, currentDate)) {
+        // Create entry with "skipped" status
+        const now = new Date().toISOString();
+        const entry: HabitEntry = {
+          id: crypto.randomUUID(),
+          habitId: habit.id,
+          date: dateString,
+          status: "skipped",
+          note: "",
+          createdAt: now,
+        };
+        await createHabitEntry(entry);
+      }
+    }
+
+    // Move to next day
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+}
+
+// Backpopulate entries for all active habits
 export async function backpopulateHabitEntries(): Promise<void> {
   // Ensure database is initialized
   await getDb();
 
-  // Get all active habits (not archived, not paused, not cancelled)
-  const habits = await getHabits(false);
+  // Get all active habits (not archived, not paused)
+  const habits = await getHabits(true); // Include all to filter ourselves
   const activeHabits = habits.filter(
-    (h) => !h.pausedAt && !h.cancelledAt
+    (h) => !h.pausedAt && !h.archivedAt
   );
 
-  // Get today's date as YYYY-MM-DD
-  const today = new Date();
-  const todayString = today.toISOString().split("T")[0];
-
-  // Get all existing entries for today
-  const todayEntries = await getHabitEntriesByDate(todayString);
-  const existingHabitIds = new Set(todayEntries.map((e) => e.habitId));
-
-  // For each active habit, check if it's scheduled for today and create entry if needed
+  // Backpopulate each active habit
   for (const habit of activeHabits) {
-    // Skip if entry already exists
-    if (existingHabitIds.has(habit.id)) {
-      continue;
-    }
-
-    // Check if habit is scheduled for today
-    if (isHabitScheduledForDate(habit, today)) {
-      // Create entry with "not_scheduled" status as placeholder
-      const now = new Date().toISOString();
-      const entry: HabitEntry = {
-        id: crypto.randomUUID(),
-        habitId: habit.id,
-        date: todayString,
-        status: "not_scheduled",
-        note: "",
-        createdAt: now,
-      };
-      await createHabitEntry(entry);
-    }
+    await backpopulateHabitEntriesForHabit(habit);
   }
 }

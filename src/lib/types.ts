@@ -52,7 +52,7 @@ export interface Habit {
 
 export type HabitInput = Omit<Habit, "id" | "createdAt" | "updatedAt">;
 
-export type HabitEntryStatus = "completed" | "cancelled" | "skipped" | "not_scheduled";
+export type HabitEntryStatus = "completed" | "cancelled" | "skipped";
 
 export interface HabitEntry {
   id: string;

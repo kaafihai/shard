@@ -4,7 +4,7 @@ import { useTasks, useToggleTask, useUpdateTask, useDeleteTask } from "@/hooks/u
 import {
   useHabits,
   useHabitEntriesByDate,
-  useToggleHabitEntry,
+  useCompleteHabitEntry,
   useUpdateHabit,
   useDeleteHabit,
   getTodayDateString,
@@ -43,16 +43,6 @@ import {
 import { format } from "date-fns";
 import type { Task, Habit, HabitEntry } from "@/lib/types";
 
-const DAY_MAP: Record<number, string> = {
-  0: "SU",
-  1: "MO",
-  2: "TU",
-  3: "WE",
-  4: "TH",
-  5: "FR",
-  6: "SA",
-};
-
 const DAY_LABELS: Record<string, string> = {
   SU: "Sun",
   MO: "Mon",
@@ -61,6 +51,15 @@ const DAY_LABELS: Record<string, string> = {
   TH: "Thu",
   FR: "Fri",
   SA: "Sat",
+};
+const DAY_FULL_NAMES: Record<string, string> = {
+  SU: "Sunday",
+  MO: "Monday",
+  TU: "Tuesday",
+  WE: "Wednesday",
+  TH: "Thursday",
+  FR: "Friday",
+  SA: "Saturday",
 };
 const WEEKDAYS = ["MO", "TU", "WE", "TH", "FR"];
 const WEEKENDS = ["SA", "SU"];
@@ -82,28 +81,11 @@ function formatRRule(rrule: string): string {
       return "Weekdays";
     if (sorted.length === 2 && WEEKENDS.every((d) => days.includes(d)))
       return "Weekends";
+    if (sorted.length === 1) return `Every ${DAY_FULL_NAMES[sorted[0]].toLowerCase()}`;
     return sorted.map((d) => DAY_LABELS[d]).join(", ");
   }
 
   return rrule;
-}
-
-function isDateScheduled(date: Date, rrule: string): boolean {
-  const freqMatch = rrule.match(/FREQ=(\w+)/);
-  const frequency = freqMatch?.[1] || "DAILY";
-
-  if (frequency === "DAILY") {
-    return true;
-  }
-
-  if (frequency === "WEEKLY") {
-    const daysMatch = rrule.match(/BYDAY=([A-Z,]+)/);
-    const days = daysMatch ? daysMatch[1].split(",") : [];
-    const dayOfWeek = DAY_MAP[date.getDay()];
-    return days.includes(dayOfWeek);
-  }
-
-  return true;
 }
 
 export const Route = createFileRoute("/")({
@@ -120,6 +102,7 @@ function ListItem({
   disabled,
   onClick,
   archived,
+  variant = "default",
 }: {
   completed: boolean;
   onToggle: () => void;
@@ -130,22 +113,30 @@ function ListItem({
   actions?: React.ReactNode;
   onClick?: () => void;
   archived?: boolean;
+  variant?: "default" | "overdue" | "due" | "completed";
 }) {
+  const getBackgroundColor = () => {
+    if (completed || variant === "completed") return "bg-success/10";
+    if (variant === "overdue") return "bg-destructive/10";
+    if (variant === "due") return "bg-amber-500/10";
+    return "bg-primary/5";
+  };
+
   return (
     <div
       data-completed={completed}
       data-archived={archived}
-      className="flex bg-primary/5 data-[completed=true]:bg-success/10 data-[archived=true]:bg-muted/30 items-center gap-4 p-4 rounded-4xl transition-colors"
+      className={`flex ${getBackgroundColor()} items-center gap-4 p-4 rounded-4xl transition-colors`}
     >
       <div
         data-archived={archived}
-        className={`flex-1 min-w-0 order-1 hover:opacity-80 transition-opacity data-[archived=true]:opacity-60 ${onClick ? "cursor-pointer" : ""}`}
+        className={`flex-1 min-w-0 order-1 hover:opacity-80 transition-opacity ${onClick ? "cursor-pointer" : ""}`}
         onClick={onClick}
       >
         <h3 className={`font-semibold ${completed ? "opacity-70" : ""}`}>
           {title}
         </h3>
-        {description && <p className="text-sm mt-1">{description}</p>}
+        {description && <p className="text-sm mt-1 line-clamp-2">{description}</p>}
         {metadata}
       </div>
       {actions && (
@@ -178,6 +169,7 @@ function HabitItem({
   onArchive,
   onUnarchive,
   onDelete,
+  getNextOccurrence,
 }: {
   habit: Habit;
   entry: HabitEntry | null;
@@ -187,30 +179,61 @@ function HabitItem({
   onArchive?: (habit: Habit) => void;
   onUnarchive?: (habit: Habit) => void;
   onDelete?: (habit: Habit) => void;
+  getNextOccurrence?: (rrule: string, afterDate: Date) => Date | null;
 }) {
   const isCompleted = entry?.status === "completed";
   const isPaused = Boolean(habit.pausedAt);
   const isArchived = Boolean(habit.archivedAt);
+  const hasNoEntry = entry === null && !isPaused && !isArchived;
+
+  const nextOccurrence = hasNoEntry && getNextOccurrence
+    ? getNextOccurrence(habit.rrule, new Date())
+    : null;
+
+  // Calculate days until next occurrence
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysUntilNext = nextOccurrence ? Math.floor((nextOccurrence.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : null;
 
   return (
     <ListItem
       completed={isCompleted}
       onToggle={() => onToggle(habit, entry)}
       title={habit.title}
-      description={!isPaused && !isArchived ? habit.description : undefined}
-      disabled={entry?.status === "cancelled" || isPaused || isArchived}
+      description={!isPaused && !isArchived && !hasNoEntry ? habit.description : undefined}
+      disabled={isPaused || isArchived || hasNoEntry}
       onClick={isPaused || isArchived ? undefined : () => onEdit(habit)}
       archived={isArchived}
       metadata={
         isArchived ? (
-          <p className="text-sm mt-1 flex items-center gap-1">
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
             <ArchiveIcon className="size-3" />
-            Archived
+            <span className="text-gray-600">Archived</span>
           </p>
         ) : isPaused ? (
-          <p className="text-sm mt-1 flex items-center gap-1">
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
             <PauseIcon className="size-3" />
-            Paused
+            <span className="text-gray-600">Paused</span>
+          </p>
+        ) : hasNoEntry && daysUntilNext === 1 ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <HabitIcon className="size-3" />
+            <span className="text-gray-600">Next: Tomorrow</span>
+          </p>
+        ) : hasNoEntry && daysUntilNext === 2 ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <HabitIcon className="size-3" />
+            <span className="text-gray-600">Next: In 2 days</span>
+          </p>
+        ) : hasNoEntry && daysUntilNext === 3 ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <HabitIcon className="size-3" />
+            <span className="text-gray-600">Next: In 3 days</span>
+          </p>
+        ) : hasNoEntry && nextOccurrence ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <HabitIcon className="size-3" />
+            <span className="text-gray-600">Next: {format(nextOccurrence, "EEEE, d MMMM yyyy")}</span>
           </p>
         ) : (
           <p className="text-sm mt-1 flex items-center gap-1">
@@ -275,8 +298,27 @@ function TaskItem({
 }) {
   const isCompleted = Boolean(task.completedAt);
   const isArchived = Boolean(task.archivedAt);
-  const isPast =
-    task.dueDate && !task.completedAt && new Date(task.dueDate) < new Date();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
+  if (dueDate) {
+    dueDate.setHours(0, 0, 0, 0);
+  }
+
+  const isPast = dueDate && !task.completedAt && dueDate < today;
+  const isDueToday = dueDate && dueDate.getTime() === today.getTime();
+
+  // Calculate days until due
+  const daysUntilDue = dueDate ? Math.floor((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : null;
+
+  // Determine variant for color coding
+  const getVariant = (): "default" | "overdue" | "due" | "completed" => {
+    if (isCompleted) return "completed";
+    if (isPast) return "overdue";
+    if (isDueToday) return "due";
+    return "default";
+  };
 
   return (
     <ListItem
@@ -287,17 +329,40 @@ function TaskItem({
       disabled={isArchived}
       onClick={isArchived ? undefined : () => onEdit(task)}
       archived={isArchived}
+      variant={getVariant()}
       metadata={
         isArchived ? (
-          <p className="text-sm mt-1 flex items-center gap-1">
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
             <ArchiveIcon className="size-3" />
-            Archived
+            <span className="text-gray-600">Archived</span>
+          </p>
+        ) : isCompleted ? undefined : isPast ? (
+          <p className="text-sm font-medium text-destructive/70 mt-1 flex items-center gap-1">
+            <DateIcon className="size-3" />
+            Overdue
+          </p>
+        ) : isDueToday ? (
+          <p className="text-sm font-medium text-amber-600 mt-1 flex items-center gap-1">
+            <DateIcon className="size-3" />
+            Due today
+          </p>
+        ) : daysUntilDue === 1 ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <DateIcon className="size-3" />
+            Due tomorrow
+          </p>
+        ) : daysUntilDue === 2 ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <DateIcon className="size-3" />
+            Due in 2 days
+          </p>
+        ) : daysUntilDue === 3 ? (
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
+            <DateIcon className="size-3" />
+            Due in 3 days
           </p>
         ) : task.dueDate ? (
-          <p
-            data-past={isPast}
-            className="text-sm data-[past=true]:text-destructive mt-1 flex items-center gap-1"
-          >
+          <p className="text-sm font-medium mt-1 flex items-center gap-1">
             <DateIcon className="size-3" />
             {format(new Date(task.dueDate), "PPP")}
           </p>
@@ -350,7 +415,7 @@ function TasksComponent() {
   const toggleTask = useToggleTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
-  const toggleHabitEntry = useToggleHabitEntry();
+  const completeHabitEntry = useCompleteHabitEntry();
   const updateHabit = useUpdateHabit();
   const deleteHabit = useDeleteHabit();
 
@@ -360,28 +425,64 @@ function TasksComponent() {
     }
   }, [todaysMood, isMoodLoading, isMoodFetching, navigate]);
 
-  const todaysHabits = useMemo(() => {
-    const today = new Date();
-    return habits.filter((habit) => {
-      // Always include archived or paused habits regardless of schedule
-      if (habit.archivedAt || habit.pausedAt) {
-        return true;
-      }
-      // For active habits, only include if scheduled for today
-      return isDateScheduled(today, habit.rrule);
-    });
-  }, [habits]);
-
   const getEntryForHabit = (habitId: string) => {
-    return todayEntries.find((e) => e.habitId === habitId) || null;
+    // Only return entry if it matches today's date
+    const entry = todayEntries.find((e) => e.habitId === habitId);
+    if (!entry) return null;
+
+    const today = getTodayDateString();
+    return entry.date === today ? entry : null;
   };
 
   const isHabitCompleted = (habit: Habit) => {
     return getEntryForHabit(habit.id)?.status === "completed";
   };
 
-  const isHabitCancelled = (habit: Habit) => {
-    return getEntryForHabit(habit.id)?.status === "cancelled";
+  const isArchivedToday = (archivedAt: string | null) => {
+    if (!archivedAt) return false;
+    const archivedDate = new Date(archivedAt);
+    const today = new Date();
+    return archivedDate.toDateString() === today.toDateString();
+  };
+
+  const getNextOccurrence = (rrule: string, afterDate: Date): Date | null => {
+    const freqMatch = rrule.match(/FREQ=(\w+)/);
+    const frequency = freqMatch?.[1] || "DAILY";
+
+    if (frequency === "DAILY") {
+      const next = new Date(afterDate);
+      next.setDate(next.getDate() + 1);
+      return next;
+    }
+
+    if (frequency === "WEEKLY") {
+      const daysMatch = rrule.match(/BYDAY=([A-Z,]+)/);
+      const days = daysMatch ? daysMatch[1].split(",") : [];
+
+      if (days.length === 0) return null;
+
+      const dayMap: Record<string, number> = {
+        SU: 0, MO: 1, TU: 2, WE: 3, TH: 4, FR: 5, SA: 6
+      };
+
+      const dayNumbers = days.map(d => dayMap[d]).sort((a, b) => a - b);
+      const currentDay = afterDate.getDay();
+
+      let nextDay = dayNumbers.find(d => d > currentDay);
+      let daysToAdd = 0;
+
+      if (nextDay !== undefined) {
+        daysToAdd = nextDay - currentDay;
+      } else {
+        daysToAdd = 7 - currentDay + dayNumbers[0];
+      }
+
+      const next = new Date(afterDate);
+      next.setDate(next.getDate() + daysToAdd);
+      return next;
+    }
+
+    return null;
   };
 
   // Combine and sort all items based on their state
@@ -389,7 +490,7 @@ function TasksComponent() {
     // Filter tasks based on selected filter
     const tasksToShow = tasks.filter((task) => {
       if (filter === "active") {
-        return !task.completedAt && !task.archivedAt;
+        return (!task.archivedAt || isArchivedToday(task.archivedAt));
       }
       if (filter === "completed") {
         return Boolean(task.completedAt) && !task.archivedAt;
@@ -401,9 +502,14 @@ function TasksComponent() {
     });
 
     // Filter habits based on selected filter
-    const habitsToShow = todaysHabits.filter((habit) => {
+    const habitsToShow = habits.filter((habit) => {
       if (filter === "active") {
-        return !isHabitCompleted(habit) && !isHabitCancelled(habit) && !habit.pausedAt && !habit.archivedAt;
+        // Include archived/paused habits that happened today, or all active habits
+        if (habit.archivedAt) {
+          return isArchivedToday(habit.archivedAt);
+        }
+        // Show all non-archived habits (paused, scheduled for today, or upcoming)
+        return true;
       }
       if (filter === "completed") {
         return isHabitCompleted(habit) && !habit.pausedAt && !habit.archivedAt;
@@ -414,35 +520,88 @@ function TasksComponent() {
       return true;
     });
 
-    // Combine and sort: active -> paused -> archived
+    // Combine and sort
     const combined: Array<{ type: 'habit' | 'task'; item: Habit | Task }> = [
       ...habitsToShow.map(h => ({ type: 'habit' as const, item: h })),
       ...tasksToShow.map(t => ({ type: 'task' as const, item: t })),
     ];
 
     return combined.sort((a, b) => {
+      if (filter !== "active") {
+        // Old sorting for non-active filters
+        const getState = (item: { type: 'habit' | 'task'; item: Habit | Task }) => {
+          if (item.type === 'habit') {
+            const habit = item.item as Habit;
+            if (habit.archivedAt) return 2;
+            if (habit.pausedAt) return 1;
+            return 0;
+          } else {
+            const task = item.item as Task;
+            if (task.archivedAt) return 2;
+            return 0;
+          }
+        };
+        const aState = getState(a);
+        const bState = getState(b);
+        return aState - bState;
+      }
+
+      // New sorting for "active" filter
       const getState = (item: { type: 'habit' | 'task'; item: Habit | Task }) => {
         if (item.type === 'habit') {
           const habit = item.item as Habit;
-          if (habit.archivedAt || isHabitCancelled(habit)) return 2; // archived
-          if (habit.pausedAt) return 1; // paused
-          return 0; // active
+          if (habit.archivedAt) return 5; // archived today
+          if (habit.pausedAt) return 4; // paused
+          const entry = getEntryForHabit(habit.id);
+          const isCompleted = entry?.status === 'completed';
+          if (isCompleted) return 2; // completed today
+          if (entry) return 0; // active with entry for today (skipped or other non-completed status)
+          return 3; // upcoming (no entry for today)
         } else {
           const task = item.item as Task;
-          if (task.archivedAt) return 2; // archived
-          return 0; // active
+          if (task.archivedAt) return 5; // archived today
+          if (task.completedAt) return 2; // completed today
+          return 1; // active tasks
         }
       };
 
       const aState = getState(a);
       const bState = getState(b);
 
-      return aState - bState;
-    });
-  }, [tasks, todaysHabits, filter, isHabitCompleted, isHabitCancelled]);
+      if (aState !== bState) {
+        return aState - bState;
+      }
 
-  const handleToggleHabit = (habit: Habit, entry: HabitEntry | null) => {
-    toggleHabitEntry.mutate({ habit, date: todayDate, currentEntry: entry });
+      // Within tasks (state 1), sort by due date: overdue -> due today -> future
+      if (aState === 1 && bState === 1) {
+        const taskA = a.item as Task;
+        const taskB = b.item as Task;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const dueDateA = taskA.dueDate ? new Date(taskA.dueDate) : null;
+        const dueDateB = taskB.dueDate ? new Date(taskB.dueDate) : null;
+
+        if (dueDateA) dueDateA.setHours(0, 0, 0, 0);
+        if (dueDateB) dueDateB.setHours(0, 0, 0, 0);
+
+        // Tasks without due dates go to the end
+        if (!dueDateA && !dueDateB) return 0;
+        if (!dueDateA) return 1;
+        if (!dueDateB) return -1;
+
+        return dueDateA.getTime() - dueDateB.getTime();
+      }
+
+      return 0;
+    });
+  }, [tasks, habits, filter, getEntryForHabit, isHabitCompleted, isArchivedToday]);
+
+  const handleToggleHabit = (_habit: Habit, entry: HabitEntry | null) => {
+    if (entry && entry.status !== 'completed') {
+      completeHabitEntry.mutate({ entry });
+    }
   };
 
   const handleEditHabit = (habit: Habit) => {
@@ -450,7 +609,12 @@ function TasksComponent() {
   };
 
   const handleEditTask = (task: Task) => {
-    navigate({ to: "/tasks/$id/edit", params: { id: task.id } });
+    const readonly = Boolean(task.completedAt);
+    navigate({
+      to: "/tasks/$id/edit",
+      params: { id: task.id },
+      search: { readonly }
+    });
   };
 
   const handleResumeHabit = (habit: Habit) => {
@@ -503,6 +667,39 @@ function TasksComponent() {
     }
   };
 
+  // Group items by state for headers
+  const groupedItems = useMemo(() => {
+    if (filter !== "active") return null;
+
+    const groups: Record<number, Array<{ type: 'habit' | 'task'; item: Habit | Task }>> = {};
+
+    allItems.forEach((item) => {
+      const getState = () => {
+        if (item.type === 'habit') {
+          const habit = item.item as Habit;
+          if (habit.archivedAt) return 5;
+          if (habit.pausedAt) return 4;
+          const entry = getEntryForHabit(item.item.id);
+          const isCompleted = entry?.status === 'completed';
+          if (isCompleted) return 2; // completed today
+          if (entry) return 0; // active with entry for today
+          return 3; // upcoming (no entry for today)
+        } else {
+          const task = item.item as Task;
+          if (task.archivedAt) return 5;
+          if (task.completedAt) return 2;
+          return 1;
+        }
+      };
+
+      const state = getState();
+      if (!groups[state]) groups[state] = [];
+      groups[state].push(item);
+    });
+
+    return groups;
+  }, [allItems, filter, getEntryForHabit]);
+
   if (isLoading || isHabitsLoading) {
     return (
       <div className="flex justify-center">
@@ -513,8 +710,153 @@ function TasksComponent() {
 
   return (
     <div className="mx-auto space-y-8">
+      <h1 className="text-2xl font-bold">My Tasks</h1>
       {allItems.length === 0 ? (
         <div className="text-center py-12">All done!</div>
+      ) : filter === "active" && groupedItems ? (
+        <div className="space-y-3">
+          {/* Active habits with entries for today (state 0) */}
+          {groupedItems[0] && (
+            <div className="space-y-3">
+              {groupedItems[0].map((item) => (
+                <HabitItem
+                  key={item.item.id}
+                  habit={item.item as Habit}
+                  entry={getEntryForHabit(item.item.id)}
+                  onToggle={handleToggleHabit}
+                  onEdit={handleEditHabit}
+                  onResume={handleResumeHabit}
+                  onArchive={handleArchiveHabit}
+                  onUnarchive={handleUnarchiveHabit}
+                  onDelete={handleDeleteHabit}
+                  getNextOccurrence={getNextOccurrence}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Active tasks (state 1) */}
+          {groupedItems[1] && (
+            <div className="space-y-3">
+              {groupedItems[1].map((item) => (
+                <TaskItem
+                  key={item.item.id}
+                  task={item.item as Task}
+                  onToggle={toggleTask.mutate}
+                  onEdit={handleEditTask}
+                  onUnarchive={handleUnarchiveTask}
+                  onDelete={handleDeleteTask}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Completed today (state 2) */}
+          {groupedItems[2] && (
+            <div className="space-y-3 mt-6">
+              <h2 className="text-lg font-semibold">Completed today</h2>
+              {groupedItems[2].map((item) =>
+                item.type === 'habit' ? (
+                  <HabitItem
+                    key={item.item.id}
+                    habit={item.item as Habit}
+                    entry={getEntryForHabit(item.item.id)}
+                    onToggle={handleToggleHabit}
+                    onEdit={handleEditHabit}
+                    onResume={handleResumeHabit}
+                    onArchive={handleArchiveHabit}
+                    onUnarchive={handleUnarchiveHabit}
+                    onDelete={handleDeleteHabit}
+                    getNextOccurrence={getNextOccurrence}
+                  />
+                ) : (
+                  <TaskItem
+                    key={item.item.id}
+                    task={item.item as Task}
+                    onToggle={toggleTask.mutate}
+                    onEdit={handleEditTask}
+                    onUnarchive={handleUnarchiveTask}
+                    onDelete={handleDeleteTask}
+                  />
+                )
+              )}
+            </div>
+          )}
+
+          {/* Upcoming habits (state 3) */}
+          {groupedItems[3] && (
+            <div className="space-y-3 mt-6">
+              <h2 className="text-lg font-semibold">Upcoming habits</h2>
+              {groupedItems[3].map((item) => (
+                <HabitItem
+                  key={item.item.id}
+                  habit={item.item as Habit}
+                  entry={getEntryForHabit(item.item.id)}
+                  onToggle={handleToggleHabit}
+                  onEdit={handleEditHabit}
+                  onResume={handleResumeHabit}
+                  onArchive={handleArchiveHabit}
+                  onUnarchive={handleUnarchiveHabit}
+                  onDelete={handleDeleteHabit}
+                  getNextOccurrence={getNextOccurrence}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Paused habits (state 4) */}
+          {groupedItems[4] && (
+            <div className="space-y-3 mt-6">
+              <h2 className="text-lg font-semibold">Paused</h2>
+              {groupedItems[4].map((item) => (
+                <HabitItem
+                  key={item.item.id}
+                  habit={item.item as Habit}
+                  entry={getEntryForHabit(item.item.id)}
+                  onToggle={handleToggleHabit}
+                  onEdit={handleEditHabit}
+                  onResume={handleResumeHabit}
+                  onArchive={handleArchiveHabit}
+                  onUnarchive={handleUnarchiveHabit}
+                  onDelete={handleDeleteHabit}
+                  getNextOccurrence={getNextOccurrence}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Archived items (state 5) */}
+          {groupedItems[5] && (
+            <div className="space-y-3 mt-6">
+              <h2 className="text-lg font-semibold">Archived today</h2>
+              {groupedItems[5].map((item) =>
+                item.type === 'habit' ? (
+                  <HabitItem
+                    key={item.item.id}
+                    habit={item.item as Habit}
+                    entry={getEntryForHabit(item.item.id)}
+                    onToggle={handleToggleHabit}
+                    onEdit={handleEditHabit}
+                    onResume={handleResumeHabit}
+                    onArchive={handleArchiveHabit}
+                    onUnarchive={handleUnarchiveHabit}
+                    onDelete={handleDeleteHabit}
+                    getNextOccurrence={getNextOccurrence}
+                  />
+                ) : (
+                  <TaskItem
+                    key={item.item.id}
+                    task={item.item as Task}
+                    onToggle={toggleTask.mutate}
+                    onEdit={handleEditTask}
+                    onUnarchive={handleUnarchiveTask}
+                    onDelete={handleDeleteTask}
+                  />
+                )
+              )}
+            </div>
+          )}
+        </div>
       ) : (
         <div className="space-y-3">
           {allItems.map((item) =>
@@ -529,6 +871,7 @@ function TasksComponent() {
                 onArchive={handleArchiveHabit}
                 onUnarchive={handleUnarchiveHabit}
                 onDelete={handleDeleteHabit}
+                getNextOccurrence={getNextOccurrence}
               />
             ) : (
               <TaskItem

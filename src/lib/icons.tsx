@@ -31,4 +31,5 @@ export {
   SpinnerIcon as LoadingIcon,
   InfoIcon,
   WarningIcon,
+  ArrowCounterClockwiseIcon as UndoIcon,
 } from "@phosphor-icons/react";

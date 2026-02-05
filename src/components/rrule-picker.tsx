@@ -29,6 +29,7 @@ const DAYS_OF_WEEK = [
 interface RRulePickerProps {
   value: string | null;
   onChange: (rrule: string | null) => void;
+  allowNone?: boolean;
 }
 
 function parseRRule(rrule: string | null): { frequency: Frequency | null; days: string[] } {
@@ -51,7 +52,7 @@ function buildRRule(frequency: Frequency | null, days: string[]): string | null 
   return `FREQ=${frequency}`;
 }
 
-export function RRulePicker({ value, onChange }: RRulePickerProps) {
+export function RRulePicker({ value, onChange, allowNone = true }: RRulePickerProps) {
   const parsed = parseRRule(value);
   const [frequency, setFrequency] = useState<Frequency | null>(parsed.frequency);
   const [selectedDays, setSelectedDays] = useState<string[]>(parsed.days);
@@ -92,12 +93,12 @@ export function RRulePicker({ value, onChange }: RRulePickerProps) {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
         <Label>Repeat</Label>
-        <Select  value={frequency ?? "NONE"} onValueChange={handleFrequencyChange}>
+        <Select value={frequency ?? "NONE"} onValueChange={handleFrequencyChange}>
           <SelectTrigger className={'w-full'}>
             {FREQUENCY_LABELS[frequency ?? "NONE"]}
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="NONE">Don't repeat</SelectItem>
+            {allowNone && <SelectItem value="NONE">Don't repeat</SelectItem>}
             <SelectItem value="DAILY">Daily</SelectItem>
             <SelectItem value="WEEKLY">Weekly</SelectItem>
           </SelectContent>

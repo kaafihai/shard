@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useMoodByDate } from "@/hooks/use-moods";
-import { useTasksByCompletedAt, useTasksByDueDate, useTasksByArchivedAt } from "@/hooks/use-tasks";
+import { useTasksByCompletedAt, useTasksByDueDate } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { format } from "date-fns";
 import {
@@ -17,9 +17,9 @@ import {
   MoodGreatIcon,
   CompletedIcon,
   DateIcon,
-  CancelIcon,
 } from "@/lib/icons";
 import type { Task } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/calendar/$timestamp")({
   component: CalendarDayComponent,
@@ -51,11 +51,16 @@ function CalendarDayComponent() {
     useTasksByCompletedAt(date);
   const { data: dueTasks = [], isLoading: isDueTasksLoading } =
     useTasksByDueDate(date);
-  const { data: archivedTasks = [], isLoading: isArchivedTasksLoading } =
-    useTasksByArchivedAt(date);
 
   const completedTasks = tasks.filter((task: Task) => task.completedAt);
-  const isLoading = isMoodLoading || isTasksLoading || isDueTasksLoading || isArchivedTasksLoading;
+  const isLoading = isMoodLoading || isTasksLoading || isDueTasksLoading;
+
+  // Helper to determine if a date is in the past
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const selectedDate = new Date(date);
+  selectedDate.setHours(0, 0, 0, 0);
+  const isOverdue = selectedDate < today;
 
   return (
     <Dialog
@@ -97,41 +102,40 @@ function CalendarDayComponent() {
             </div>
 
             {/* Due on this day Section */}
-            {dueTasks.length > 0 && (
+            {dueTasks.filter((task: Task) => !task.completedAt && !task.archivedAt).length > 0 && (
               <div className="space-y-3">
                 <h3 className="text-sm font-medium">
-                  Due on this day ({dueTasks.length})
+                  Due on this day ({dueTasks.filter((task: Task) => !task.completedAt && !task.archivedAt).length})
                 </h3>
                 <div className="space-y-2">
-                  {dueTasks.map((task: Task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-start gap-3 p-3 rounded-2xl"
-                    >
-                      <DateIcon
-                        className="size-5 mt-0.5"
-                        weight="fill"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium">{task.title}</p>
-                        {task.description && (
-                          <p className="text-sm mt-1">{task.description}</p>
+                  {dueTasks
+                    .filter((task: Task) => !task.completedAt && !task.archivedAt)
+                    .map((task: Task) => (
+                      <Link
+                        key={task.id}
+                        to="/tasks/$id/edit"
+                        params={{ id: task.id }}
+                        search={{ readonly: false }}
+                        className={cn(
+                          "flex items-start gap-3 p-3 rounded-2xl transition-colors",
+                          isOverdue ? "bg-destructive/10 hover:bg-destructive/15" : "bg-amber-500/10 hover:bg-amber-500/15"
                         )}
-                        {task.completedAt && (
-                          <p className="text-xs text-success mt-1 flex items-center gap-1">
-                            <CompletedIcon className="size-3" />
-                            Completed
-                          </p>
-                        )}
-                        {task.archivedAt && (
-                          <p className="text-xs text-destructive mt-1 flex items-center gap-1">
-                            <CancelIcon className="size-3" />
-                            Archived
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                      >
+                        <DateIcon
+                          className={cn(
+                            "size-5 mt-0.5",
+                            isOverdue ? "text-destructive" : "text-amber-500"
+                          )}
+                          weight="fill"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium">{task.title}</p>
+                          {task.description && (
+                            <p className="text-sm mt-1">{task.description}</p>
+                          )}
+                        </div>
+                      </Link>
+                    ))}
                 </div>
               </div>
             )}
@@ -144,12 +148,15 @@ function CalendarDayComponent() {
               {completedTasks.length > 0 ? (
                 <div className="space-y-2">
                   {completedTasks.map((task: Task) => (
-                    <div
+                    <Link
                       key={task.id}
-                      className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl"
+                      to="/tasks/$id/edit"
+                      params={{ id: task.id }}
+                      search={{ readonly: true }}
+                      className="flex items-start gap-3 p-3 bg-success/10 rounded-2xl hover:bg-success/15 transition-colors"
                     >
                       <CompletedIcon
-                        className="size-5 mt-0.5"
+                        className="size-5 mt-0.5 text-success"
                         weight="fill"
                       />
                       <div className="flex-1 min-w-0">
@@ -158,68 +165,13 @@ function CalendarDayComponent() {
                           <p className="text-sm mt-1">{task.description}</p>
                         )}
                       </div>
-                    </div>
+                    </Link>
                   ))}
                 </div>
               ) : (
                 <p className="text-sm italic">No tasks completed on this day</p>
               )}
             </div>
-
-            {/* Archived Tasks Section */}
-            {archivedTasks.length > 0 && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium">
-                  Archived Tasks ({archivedTasks.length})
-                </h3>
-                <div className="space-y-2">
-                  {archivedTasks.map((task: Task) => (
-                    <div
-                      key={task.id}
-                      className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl opacity-70"
-                    >
-                      <CancelIcon
-                        className="size-5 mt-0.5 text-destructive"
-                        weight="fill"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium">{task.title}</p>
-                        {task.description && (
-                          <p className="text-sm mt-1">{task.description}</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* All Tasks Section */}
-            {tasks.length > completedTasks.length && (
-              <div className="space-y-3">
-                <h3 className="text-sm font-medium">
-                  Other Tasks ({tasks.length - completedTasks.length})
-                </h3>
-                <div className="space-y-2">
-                  {tasks
-                    .filter((task: Task) => !task.completedAt)
-                    .map((task: Task) => (
-                      <div
-                        key={task.id}
-                        className="flex items-start gap-3 p-3 bg-muted/50 rounded-2xl"
-                      >
-                        <div className="size-5 border-2 rounded-full mt-0.5" />
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium">{task.title}</p>
-                          {task.description && (
-                            <p className="text-sm mt-1">{task.description}</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
       </DialogContent>

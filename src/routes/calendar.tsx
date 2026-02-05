@@ -170,37 +170,47 @@ function CalendarPage() {
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="p-4 bg-primary/10 rounded-3xl space-y-1">
+      <div className="grid grid-cols-3 gap-3">
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/" })}
+          className="p-4 bg-amber-500/10 rounded-3xl space-y-1 text-left hover:bg-amber-500/15 transition-colors"
+        >
           <div className="flex items-center gap-2">
-            <DateIcon className="size-5" />
-            <span className="text-sm font-medium">Upcoming</span>
+            <DateIcon className="size-5 text-amber-500" />
+            <span className="text-sm font-bold text-amber-500">Upcoming</span>
           </div>
           <p className="text-2xl font-bold">{stats.dueTasks}</p>
           <p className="text-xs">tasks due</p>
-        </div>
+        </button>
 
-        {stats.overdueTasks > 0 && (
-          <div className="p-4 bg-destructive/10 rounded-3xl space-y-1">
-            <div className="flex items-center gap-2">
-              <DateIcon className="size-5 text-destructive" />
-              <span className="text-sm font-medium">Overdue</span>
-            </div>
-            <p className="text-2xl font-bold text-destructive">
-              {stats.overdueTasks}
-            </p>
-            <p className="text-xs">need attention</p>
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/" })}
+          className="p-4 bg-destructive/10 rounded-3xl space-y-1 text-left hover:bg-destructive/15 transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <DateIcon className="size-5 text-destructive" />
+            <span className="text-sm font-bold text-destructive">Overdue</span>
           </div>
-        )}
+          <p className="text-2xl font-bold">
+            {stats.overdueTasks}
+          </p>
+          <p className="text-xs">need attention</p>
+        </button>
 
-        <div className="p-4 bg-success/10 rounded-3xl space-y-1">
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/" })}
+          className="p-4 bg-success/10 rounded-3xl space-y-1 text-left hover:bg-success/15 transition-colors"
+        >
           <div className="flex items-center gap-2">
             <CompletedIcon className="size-5 text-success" />
-            <span className="text-sm font-medium">Completed</span>
+            <span className="text-sm font-bold text-success">Completed</span>
           </div>
           <p className="text-2xl font-bold">{stats.completedTasks}</p>
           <p className="text-xs">tasks done</p>
-        </div>
+        </button>
       </div>
 
       <div className="flex items-center justify-between">
@@ -289,16 +299,7 @@ function WeekSection({
                   {format(date, "d")}
                 </span>
 
-                <div className="flex flex-col items-center gap-1 mt-auto">
-                  {MoodIcon && <MoodIcon className="size-5 text-primary" />}
-                  {completedTasks.length > 0 && (
-                    <div className="flex items-center gap-0.5 text-success">
-                      <CompletedIcon className="size-4" />
-                      <span className="text-xs font-medium">
-                        {completedTasks.length}
-                      </span>
-                    </div>
-                  )}
+                <div className="flex flex-col items-center gap-1">
                   {overdueTasks.length > 0 && (
                     <div className="flex items-center gap-0.5 text-destructive">
                       <DateIcon className="size-4" />
@@ -308,13 +309,25 @@ function WeekSection({
                     </div>
                   )}
                   {dueTasks.length > 0 && (
-                    <div className="flex items-center gap-0.5">
+                    <div className="flex items-center gap-0.5 text-amber-500">
                       <DateIcon className="size-4" />
                       <span className="text-xs font-medium">
                         {dueTasks.length}
                       </span>
                     </div>
                   )}
+                  {completedTasks.length > 0 && (
+                    <div className="flex items-center gap-0.5 text-success">
+                      <CompletedIcon className="size-4" />
+                      <span className="text-xs font-medium">
+                        {completedTasks.length}
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col items-center gap-1 mt-auto">
+                  {MoodIcon && <MoodIcon className="size-5 text-primary" />}
                 </div>
               </button>
             );
