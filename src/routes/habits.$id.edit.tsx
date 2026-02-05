@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   useHabits,
   useUpdateHabit,
@@ -35,7 +34,6 @@ function EditHabitComponent() {
   const [formData, setFormData] = useState({
     title: habit?.title ?? "",
     description: habit?.description ?? "",
-    cancelled: Boolean(habit?.cancelledAt),
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,12 +44,11 @@ function EditHabitComponent() {
     }
 
     try {
-      // Update habit details including cancel state
+      // Update habit details
       await updateHabit.mutateAsync({
         ...habit,
         title: formData.title,
         description: formData.description,
-        cancelledAt: formData.cancelled ? new Date().toISOString() : null,
       });
 
       history.back();
@@ -157,19 +154,6 @@ function EditHabitComponent() {
               placeholder="Add details about this habit"
               rows={4}
             />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id="cancelled"
-              checked={formData.cancelled}
-              onCheckedChange={(checked) =>
-                setFormData({ ...formData, cancelled: checked === true })
-              }
-            />
-            <Label htmlFor="cancelled" className="cursor-pointer">
-              Cancel Habit
-            </Label>
           </div>
 
           <DialogFooter className="flex-row gap-2">

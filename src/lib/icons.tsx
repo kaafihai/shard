@@ -27,6 +27,7 @@ export {
   PauseIcon,
   PlayIcon,
   ArchiveIcon,
+  ArrowSquareUpIcon as UnarchiveIcon,
   SpinnerIcon as LoadingIcon,
   InfoIcon,
   WarningIcon,

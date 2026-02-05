@@ -7,6 +7,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -34,6 +44,8 @@ function EditTaskComponent() {
     description: task?.description ?? "",
     dueDate: task?.dueDate ?? null,
   });
+
+  const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +75,7 @@ function EditTaskComponent() {
         ...task,
         archivedAt: new Date().toISOString(),
       });
+      setShowArchiveConfirm(false);
       history.back();
     } catch (error) {
       toast.error(`Failed to archive task: ${error}`);
@@ -150,7 +163,7 @@ function EditTaskComponent() {
             <Button
               type="button"
               variant="destructive"
-              onClick={handleArchive}
+              onClick={() => setShowArchiveConfirm(true)}
               disabled={updateTask.isPending}
             >
               <ArchiveIcon />
@@ -166,6 +179,22 @@ function EditTaskComponent() {
           </DialogFooter>
         </form>
       </DialogContent>
+      <AlertDialog open={showArchiveConfirm} onOpenChange={setShowArchiveConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Archive Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to archive this task? You can always unarchive it later.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={handleArchive}>
+              Archive
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 }

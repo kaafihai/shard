@@ -1,24 +1,44 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useMemo } from "react";
-import { useTasks, useToggleTask } from "@/hooks/use-tasks";
+import { useTasks, useToggleTask, useUpdateTask, useDeleteTask } from "@/hooks/use-tasks";
 import {
   useHabits,
   useHabitEntriesByDate,
   useToggleHabitEntry,
   useUpdateHabit,
+  useDeleteHabit,
   getTodayDateString,
 } from "@/hooks/use-habits";
 import { useTodaysMood } from "@/hooks/use-moods";
 import { Button, ButtonLink } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   DateIcon,
   CheckIcon,
   HabitIcon,
-  AddIcon,
   PlayIcon,
   PauseIcon,
   ArchiveIcon,
+  UnarchiveIcon,
+  DeleteIcon,
+  AddIcon,
 } from "@/lib/icons";
 import { format } from "date-fns";
 import type { Task, Habit, HabitEntry } from "@/lib/types";
@@ -99,6 +119,7 @@ function ListItem({
   actions,
   disabled,
   onClick,
+  archived,
 }: {
   completed: boolean;
   onToggle: () => void;
@@ -108,14 +129,17 @@ function ListItem({
   metadata?: React.ReactNode;
   actions?: React.ReactNode;
   onClick?: () => void;
+  archived?: boolean;
 }) {
   return (
     <div
       data-completed={completed}
-      className="flex bg-primary/5 data-[completed=true]:bg-success/10 items-center gap-4 p-4 rounded-4xl transition-colors"
+      data-archived={archived}
+      className="flex bg-primary/5 data-[completed=true]:bg-success/10 data-[archived=true]:bg-muted/30 items-center gap-4 p-4 rounded-4xl transition-colors"
     >
       <div
-        className={`flex-1 min-w-0 order-1 hover:opacity-80 transition-opacity ${onClick ? "cursor-pointer" : ""}`}
+        data-archived={archived}
+        className={`flex-1 min-w-0 order-1 hover:opacity-80 transition-opacity data-[archived=true]:opacity-60 ${onClick ? "cursor-pointer" : ""}`}
         onClick={onClick}
       >
         <h3 className={`font-semibold ${completed ? "opacity-70" : ""}`}>
@@ -152,6 +176,8 @@ function HabitItem({
   onEdit,
   onResume,
   onArchive,
+  onUnarchive,
+  onDelete,
 }: {
   habit: Habit;
   entry: HabitEntry | null;
@@ -159,20 +185,29 @@ function HabitItem({
   onEdit: (habit: Habit) => void;
   onResume?: (habit: Habit) => void;
   onArchive?: (habit: Habit) => void;
+  onUnarchive?: (habit: Habit) => void;
+  onDelete?: (habit: Habit) => void;
 }) {
   const isCompleted = entry?.status === "completed";
   const isPaused = Boolean(habit.pausedAt);
+  const isArchived = Boolean(habit.archivedAt);
 
   return (
     <ListItem
       completed={isCompleted}
       onToggle={() => onToggle(habit, entry)}
       title={habit.title}
-      description={habit.description}
-      disabled={entry?.status === "cancelled" || isPaused}
-      onClick={isPaused ? undefined : () => onEdit(habit)}
+      description={!isPaused && !isArchived ? habit.description : undefined}
+      disabled={entry?.status === "cancelled" || isPaused || isArchived}
+      onClick={isPaused || isArchived ? undefined : () => onEdit(habit)}
+      archived={isArchived}
       metadata={
-        isPaused ? (
+        isArchived ? (
+          <p className="text-sm mt-1 flex items-center gap-1">
+            <ArchiveIcon className="size-3" />
+            Archived
+          </p>
+        ) : isPaused ? (
           <p className="text-sm mt-1 flex items-center gap-1">
             <PauseIcon className="size-3" />
             Paused
@@ -185,7 +220,24 @@ function HabitItem({
         )
       }
       actions={
-        isPaused && onResume && onArchive ? (
+        isArchived && onUnarchive && onDelete ? (
+          <>
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={() => onDelete(habit)}
+            >
+              <DeleteIcon />
+            </Button>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={() => onUnarchive(habit)}
+            >
+              <UnarchiveIcon />
+            </Button>
+          </>
+        ) : isPaused && onResume && onArchive ? (
           <>
             <Button
               variant="destructive"
@@ -212,10 +264,14 @@ function TaskItem({
   task,
   onToggle,
   onEdit,
+  onUnarchive,
+  onDelete,
 }: {
   task: Task;
   onToggle: (task: Task) => void;
   onEdit: (task: Task) => void;
+  onUnarchive?: (task: Task) => void;
+  onDelete?: (task: Task) => void;
 }) {
   const isCompleted = Boolean(task.completedAt);
   const isArchived = Boolean(task.archivedAt);
@@ -227,11 +283,17 @@ function TaskItem({
       completed={isCompleted}
       onToggle={() => onToggle(task)}
       title={task.title}
-      description={task.description}
+      description={!isArchived ? task.description : undefined}
       disabled={isArchived}
-      onClick={() => onEdit(task)}
+      onClick={isArchived ? undefined : () => onEdit(task)}
+      archived={isArchived}
       metadata={
-        task.dueDate ? (
+        isArchived ? (
+          <p className="text-sm mt-1 flex items-center gap-1">
+            <ArchiveIcon className="size-3" />
+            Archived
+          </p>
+        ) : task.dueDate ? (
           <p
             data-past={isPast}
             className="text-sm data-[past=true]:text-destructive mt-1 flex items-center gap-1"
@@ -241,6 +303,26 @@ function TaskItem({
           </p>
         ) : undefined
       }
+      actions={
+        isArchived && onUnarchive && onDelete ? (
+          <>
+            <Button
+              variant="destructive"
+              size="icon"
+              onClick={() => onDelete(task)}
+            >
+              <DeleteIcon />
+            </Button>
+            <Button
+              variant="default"
+              size="icon"
+              onClick={() => onUnarchive(task)}
+            >
+              <UnarchiveIcon />
+            </Button>
+          </>
+        ) : undefined
+      }
     />
   );
 }
@@ -248,7 +330,7 @@ function TaskItem({
 function TasksComponent() {
   const navigate = useNavigate();
   const { data: tasks = [], isLoading } = useTasks();
-  const { data: habits = [], isLoading: isHabitsLoading } = useHabits();
+  const { data: habits = [], isLoading: isHabitsLoading } = useHabits(true);
   const todayDate = getTodayDateString();
   const { data: todayEntries = [] } = useHabitEntriesByDate(todayDate);
   const {
@@ -256,10 +338,21 @@ function TasksComponent() {
     isLoading: isMoodLoading,
     isFetching: isMoodFetching,
   } = useTodaysMood();
-  const [filter, setFilter] = useState<"active" | "completed" | "all">("all");
+  const [filter, setFilter] = useState<"active" | "completed" | "archived">("active");
+
+  const filterLabels = {
+    active: "Today",
+    completed: "Completed",
+    archived: "Archived",
+  };
+  const [deleteConfirmTask, setDeleteConfirmTask] = useState<Task | null>(null);
+  const [deleteConfirmHabit, setDeleteConfirmHabit] = useState<Habit | null>(null);
   const toggleTask = useToggleTask();
+  const updateTask = useUpdateTask();
+  const deleteTask = useDeleteTask();
   const toggleHabitEntry = useToggleHabitEntry();
   const updateHabit = useUpdateHabit();
+  const deleteHabit = useDeleteHabit();
 
   useEffect(() => {
     if (!isMoodLoading && !isMoodFetching && todaysMood === null) {
@@ -269,7 +362,14 @@ function TasksComponent() {
 
   const todaysHabits = useMemo(() => {
     const today = new Date();
-    return habits.filter((habit) => isDateScheduled(today, habit.rrule));
+    return habits.filter((habit) => {
+      // Always include archived or paused habits regardless of schedule
+      if (habit.archivedAt || habit.pausedAt) {
+        return true;
+      }
+      // For active habits, only include if scheduled for today
+      return isDateScheduled(today, habit.rrule);
+    });
   }, [habits]);
 
   const getEntryForHabit = (habitId: string) => {
@@ -284,49 +384,62 @@ function TasksComponent() {
     return getEntryForHabit(habit.id)?.status === "cancelled";
   };
 
-  const activeTaskCount = tasks.filter((t) => !t.completedAt && !t.archivedAt).length;
-  const completedTaskCount = tasks.filter((t) => t.completedAt && !t.archivedAt).length;
-  const activeHabitCount = todaysHabits.filter(
-    (h) => !isHabitCompleted(h) && !isHabitCancelled(h) && !h.pausedAt && !h.archivedAt,
-  ).length;
-  const completedHabitCount = todaysHabits.filter((h) =>
-    isHabitCompleted(h) && !h.pausedAt && !h.archivedAt,
-  ).length;
-
-  const totalCount = tasks.filter(t => !t.archivedAt).length + todaysHabits.filter(h => !h.pausedAt && !h.archivedAt).length;
-  const activeCount = activeTaskCount + activeHabitCount;
-  const completedCount = completedTaskCount + completedHabitCount;
-
-  const filteredTasks = tasks
-    .filter((task) => {
-      if (filter === "active") return !task.completedAt && !task.archivedAt;
-      if (filter === "completed") return Boolean(task.completedAt);
-      // For "all", show all tasks (including archived)
+  // Combine and sort all items based on their state
+  const allItems = useMemo(() => {
+    // Filter tasks based on selected filter
+    const tasksToShow = tasks.filter((task) => {
+      if (filter === "active") {
+        return !task.completedAt && !task.archivedAt;
+      }
+      if (filter === "completed") {
+        return Boolean(task.completedAt) && !task.archivedAt;
+      }
+      if (filter === "archived") {
+        return Boolean(task.archivedAt);
+      }
       return true;
-    })
-    .sort((a, b) => {
-      // Sort archived to bottom
-      if (a.archivedAt && !b.archivedAt) return 1;
-      if (!a.archivedAt && b.archivedAt) return -1;
-      return 0;
     });
 
-  const filteredHabits = todaysHabits
-    .filter((habit) => {
-      if (filter === "active")
+    // Filter habits based on selected filter
+    const habitsToShow = todaysHabits.filter((habit) => {
+      if (filter === "active") {
         return !isHabitCompleted(habit) && !isHabitCancelled(habit) && !habit.pausedAt && !habit.archivedAt;
-      if (filter === "completed") return isHabitCompleted(habit);
-      // For "all", show all habits (including paused/archived)
+      }
+      if (filter === "completed") {
+        return isHabitCompleted(habit) && !habit.pausedAt && !habit.archivedAt;
+      }
+      if (filter === "archived") {
+        return Boolean(habit.archivedAt);
+      }
       return true;
-    })
-    .sort((a, b) => {
-      // Sort paused and archived to bottom
-      const aInactive = Boolean(a.pausedAt || a.archivedAt || isHabitCancelled(a));
-      const bInactive = Boolean(b.pausedAt || b.archivedAt || isHabitCancelled(b));
-      if (aInactive && !bInactive) return 1;
-      if (!aInactive && bInactive) return -1;
-      return 0;
     });
+
+    // Combine and sort: active -> paused -> archived
+    const combined: Array<{ type: 'habit' | 'task'; item: Habit | Task }> = [
+      ...habitsToShow.map(h => ({ type: 'habit' as const, item: h })),
+      ...tasksToShow.map(t => ({ type: 'task' as const, item: t })),
+    ];
+
+    return combined.sort((a, b) => {
+      const getState = (item: { type: 'habit' | 'task'; item: Habit | Task }) => {
+        if (item.type === 'habit') {
+          const habit = item.item as Habit;
+          if (habit.archivedAt || isHabitCancelled(habit)) return 2; // archived
+          if (habit.pausedAt) return 1; // paused
+          return 0; // active
+        } else {
+          const task = item.item as Task;
+          if (task.archivedAt) return 2; // archived
+          return 0; // active
+        }
+      };
+
+      const aState = getState(a);
+      const bState = getState(b);
+
+      return aState - bState;
+    });
+  }, [tasks, todaysHabits, filter, isHabitCompleted, isHabitCancelled]);
 
   const handleToggleHabit = (habit: Habit, entry: HabitEntry | null) => {
     toggleHabitEntry.mutate({ habit, date: todayDate, currentEntry: entry });
@@ -354,6 +467,42 @@ function TasksComponent() {
     });
   };
 
+  const handleUnarchiveHabit = (habit: Habit) => {
+    updateHabit.mutate({
+      ...habit,
+      archivedAt: null,
+    });
+  };
+
+  const handleUnarchiveTask = (task: Task) => {
+    updateTask.mutate({
+      ...task,
+      archivedAt: null,
+    });
+  };
+
+  const handleDeleteTask = (task: Task) => {
+    setDeleteConfirmTask(task);
+  };
+
+  const handleDeleteHabit = (habit: Habit) => {
+    setDeleteConfirmHabit(habit);
+  };
+
+  const confirmDeleteTask = () => {
+    if (deleteConfirmTask) {
+      deleteTask.mutate(deleteConfirmTask);
+      setDeleteConfirmTask(null);
+    }
+  };
+
+  const confirmDeleteHabit = () => {
+    if (deleteConfirmHabit) {
+      deleteHabit.mutate(deleteConfirmHabit);
+      setDeleteConfirmHabit(null);
+    }
+  };
+
   if (isLoading || isHabitsLoading) {
     return (
       <div className="flex justify-center">
@@ -364,59 +513,101 @@ function TasksComponent() {
 
   return (
     <div className="mx-auto space-y-8">
-      <div className="flex gap-2">
-        <Button
-          variant={filter === "all" ? "default" : "ghost"}
-          onClick={() => setFilter("all")}
-        >
-          All ({totalCount})
-        </Button>
-        <Button
-          variant={filter === "active" ? "default" : "ghost"}
-          onClick={() => setFilter("active")}
-        >
-          Active ({activeCount})
-        </Button>
-        <Button
-          variant={filter === "completed" ? "default" : "ghost"}
-          onClick={() => setFilter("completed")}
-        >
-          Completed ({completedCount})
-        </Button>
-      </div>
-
-      {filteredHabits.length === 0 && filteredTasks.length === 0 ? (
+      {allItems.length === 0 ? (
         <div className="text-center py-12">All done!</div>
       ) : (
         <div className="space-y-3">
-          {filteredHabits.map((habit) => (
-            <HabitItem
-              key={habit.id}
-              habit={habit}
-              entry={getEntryForHabit(habit.id)}
-              onToggle={handleToggleHabit}
-              onEdit={handleEditHabit}
-              onResume={handleResumeHabit}
-              onArchive={handleArchiveHabit}
-            />
-          ))}
-
-          {filteredTasks.map((task) => (
-            <TaskItem key={task.id} task={task} onToggle={toggleTask.mutate} onEdit={handleEditTask} />
-          ))}
+          {allItems.map((item) =>
+            item.type === 'habit' ? (
+              <HabitItem
+                key={item.item.id}
+                habit={item.item as Habit}
+                entry={getEntryForHabit(item.item.id)}
+                onToggle={handleToggleHabit}
+                onEdit={handleEditHabit}
+                onResume={handleResumeHabit}
+                onArchive={handleArchiveHabit}
+                onUnarchive={handleUnarchiveHabit}
+                onDelete={handleDeleteHabit}
+              />
+            ) : (
+              <TaskItem
+                key={item.item.id}
+                task={item.item as Task}
+                onToggle={toggleTask.mutate}
+                onEdit={handleEditTask}
+                onUnarchive={handleUnarchiveTask}
+                onDelete={handleDeleteTask}
+              />
+            )
+          )}
         </div>
       )}
 
-      {/* Floating action button */}
-      <ButtonLink
-        to="/new"
-        size="icon"
-        className="z-20 fixed bottom-40 right-6 size-14 rounded-full shadow-lg"
-      >
-        <AddIcon className="size-6" />
-      </ButtonLink>
+      {/* Filter and Add Button Container */}
+      <div className="fixed bottom-[76px] left-1/2 -translate-x-1/2 z-20 p-1 flex items-center gap-2 rounded-full bg-white shadow-lg">
+        <div className="absolute inset-0 bg-primary/10 rounded-full -z-10"></div>
+        <Select
+          value={filter}
+          onValueChange={(value) => setFilter(value as "active" | "completed" | "archived")}
+        >
+          <SelectTrigger className="h-12 px-4 rounded-full min-w-40">
+            <SelectValue>
+              {filterLabels[filter]}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="active">Today</SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
+            <SelectItem value="archived">Archived</SelectItem>
+          </SelectContent>
+        </Select>
+        <ButtonLink
+          to="/new"
+          size="icon"
+          className="size-12 rounded-full shadow-lg"
+        >
+          <AddIcon className="size-5" />
+        </ButtonLink>
+      </div>
 
       <Outlet />
+
+      {/* Delete Task Confirmation */}
+      <AlertDialog open={deleteConfirmTask !== null} onOpenChange={(open) => !open && setDeleteConfirmTask(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Task</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete this task? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDeleteTask}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Habit Confirmation */}
+      <AlertDialog open={deleteConfirmHabit !== null} onOpenChange={(open) => !open && setDeleteConfirmHabit(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Habit</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to permanently delete this habit? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction variant="destructive" onClick={confirmDeleteHabit}>
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
