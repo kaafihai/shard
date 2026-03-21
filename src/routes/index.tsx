@@ -1,5 +1,7 @@
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { EnergyCheckIn, getEnergyAdvice, type EnergyLevel } from "@/components/energy-check-in";
+import { TransitionPrompt } from "@/components/transition-prompt";
 import { useTasks, useToggleTask, useUpdateTask, useDeleteTask } from "@/hooks/use-tasks";
 import {
   useHabits,
@@ -458,6 +460,48 @@ function TasksComponent() {
     isFetching: isMoodFetching,
   } = useTodaysMood();
   const [filter, setFilter] = useState<"active" | "completed" | "archived">("active");
+  const [showEnergyCheckIn, setShowEnergyCheckIn] = useState(false);
+  const [todayEnergy, setTodayEnergy] = useState<EnergyLevel | null>(null);
+
+  // Check if energy was already logged today
+  useEffect(() => {
+    const stored = localStorage.getItem("nibble_energy");
+    if (stored) {
+      try {
+        const { date, energy } = JSON.parse(stored);
+        const today = new Date().toDateString();
+        if (date === today) {
+          setTodayEnergy(energy);
+        }
+      } catch {}
+    }
+  }, []);
+
+  // Show energy check-in after mood is logged
+  useEffect(() => {
+    if (todaysMood && !todayEnergy && !isMoodLoading && !isMoodFetching) {
+      const stored = localStorage.getItem("nibble_energy");
+      if (stored) {
+        try {
+          const { date } = JSON.parse(stored);
+          if (date === new Date().toDateString()) return;
+        } catch {}
+      }
+      setShowEnergyCheckIn(true);
+    }
+  }, [todaysMood, todayEnergy, isMoodLoading, isMoodFetching]);
+
+  const handleEnergyComplete = useCallback((energy: EnergyLevel) => {
+    setTodayEnergy(energy);
+    localStorage.setItem("nibble_energy", JSON.stringify({ date: new Date().toDateString(), energy }));
+    setShowEnergyCheckIn(false);
+  }, []);
+
+  const handleEnergySkip = useCallback(() => {
+    localStorage.setItem("nibble_energy", JSON.stringify({ date: new Date().toDateString(), energy: "moderate" }));
+    setTodayEnergy("moderate");
+    setShowEnergyCheckIn(false);
+  }, []);
 
   const filterLabels = {
     active: "Today",
@@ -466,6 +510,7 @@ function TasksComponent() {
   };
   const [deleteConfirmTask, setDeleteConfirmTask] = useState<Task | null>(null);
   const [deleteConfirmHabit, setDeleteConfirmHabit] = useState<Habit | null>(null);
+  const [showTransition, setShowTransition] = useState(false);
   const toggleTask = useToggleTask();
   const updateTask = useUpdateTask();
   const deleteTask = useDeleteTask();
@@ -655,6 +700,15 @@ function TasksComponent() {
   const handleToggleHabit = (_habit: Habit, entry: HabitEntry | null) => {
     if (entry && entry.status !== 'completed') {
       completeHabitEntry.mutate({ entry });
+      setShowTransition(true);
+    }
+  };
+
+  const handleToggleTaskWithTransition = (task: Task) => {
+    const wasCompleted = !!task.completedAt;
+    toggleTask.mutate(task);
+    if (!wasCompleted) {
+      setShowTransition(true);
     }
   };
 
@@ -765,6 +819,23 @@ function TasksComponent() {
   return (
     <div className="mx-auto space-y-8">
       <h1 className="text-2xl font-bold">My Tasks</h1>
+
+      {/* Energy level banner */}
+      {todayEnergy && filter === "active" && (
+        <div className="px-3 py-2 rounded-xl bg-primary/5 text-sm flex items-center gap-2">
+          <span className="opacity-50">Energy:</span>
+          <span className="font-medium capitalize">{todayEnergy}</span>
+          <span className="opacity-40">|</span>
+          <span className="opacity-60">{getEnergyAdvice(todayEnergy)}</span>
+        </div>
+      )}
+
+      {/* Energy check-in dialog */}
+      <EnergyCheckIn
+        open={showEnergyCheckIn}
+        onComplete={handleEnergyComplete}
+        onSkip={handleEnergySkip}
+      />
       {allItems.length === 0 ? (
         <div className="flex flex-col items-center py-12 gap-2">
           <RabbitMascot
@@ -803,7 +874,7 @@ function TasksComponent() {
                 <TaskItem
                   key={item.item.id}
                   task={item.item as Task}
-                  onToggle={toggleTask.mutate}
+                  onToggle={handleToggleTaskWithTransition}
                   onEdit={handleEditTask}
                   onUnarchive={handleUnarchiveTask}
                   onDelete={handleDeleteTask}
@@ -834,7 +905,7 @@ function TasksComponent() {
                   <TaskItem
                     key={item.item.id}
                     task={item.item as Task}
-                    onToggle={toggleTask.mutate}
+                    onToggle={handleToggleTaskWithTransition}
                     onEdit={handleEditTask}
                     onUnarchive={handleUnarchiveTask}
                     onDelete={handleDeleteTask}
@@ -908,7 +979,7 @@ function TasksComponent() {
                   <TaskItem
                     key={item.item.id}
                     task={item.item as Task}
-                    onToggle={toggleTask.mutate}
+                    onToggle={handleToggleTaskWithTransition}
                     onEdit={handleEditTask}
                     onUnarchive={handleUnarchiveTask}
                     onDelete={handleDeleteTask}
@@ -938,7 +1009,7 @@ function TasksComponent() {
               <TaskItem
                 key={item.item.id}
                 task={item.item as Task}
-                onToggle={toggleTask.mutate}
+                onToggle={handleToggleTaskWithTransition}
                 onEdit={handleEditTask}
                 onUnarchive={handleUnarchiveTask}
                 onDelete={handleDeleteTask}
@@ -1012,6 +1083,12 @@ function TasksComponent() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Transition prompt after completing a task/habit */}
+      <TransitionPrompt
+        show={showTransition}
+        onDismiss={useCallback(() => setShowTransition(false), [])}
+      />
     </div>
   );
 }

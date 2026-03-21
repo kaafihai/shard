@@ -17,6 +17,8 @@ import { useTasks, useUpdateTask } from "@/hooks/use-tasks";
 import { Spinner } from "@/components/ui/spinner";
 import { toast } from "sonner";
 import { ArchiveIcon, UndoIcon, DateIcon } from "@/lib/icons";
+import { TaskBreakdown } from "@/components/task-breakdown";
+import { TreeStructure } from "@phosphor-icons/react";
 
 export const Route = createFileRoute("/tasks/$id/edit")({
   component: EditTaskComponent,
@@ -44,6 +46,7 @@ function EditTaskComponent() {
 
   const [showArchiveConfirm, setShowArchiveConfirm] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
+  const [showBreakdown, setShowBreakdown] = useState(false);
 
   useEffect(() => {
     if (task) {
@@ -135,6 +138,7 @@ function EditTaskComponent() {
   }
 
   return (
+    <>
     <Dialog
       open={true}
       onOpenChange={(open) => {
@@ -224,23 +228,34 @@ function EditTaskComponent() {
           </div>
 
           {!readonly && (
-            <DialogFooter className="flex-row gap-2">
+            <DialogFooter className="flex-col gap-2">
               <Button
                 type="button"
-                variant="destructive"
-                onClick={() => setShowArchiveConfirm(true)}
-                disabled={updateTask.isPending}
+                variant="ghost"
+                onClick={() => setShowBreakdown(true)}
+                className="w-full text-primary"
               >
-                <ArchiveIcon />
-                Archive
+                <TreeStructure className="size-4" />
+                Too big? Break it down
               </Button>
-              <Button
-                type="submit"
-                className="flex-1"
-                disabled={!formData.title.trim() || updateTask.isPending}
-              >
-                Save Changes
-              </Button>
+              <div className="flex gap-2 w-full">
+                <Button
+                  type="button"
+                  variant="destructive"
+                  onClick={() => setShowArchiveConfirm(true)}
+                  disabled={updateTask.isPending}
+                >
+                  <ArchiveIcon />
+                  Archive
+                </Button>
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={!formData.title.trim() || updateTask.isPending}
+                >
+                  Save Changes
+                </Button>
+              </div>
             </DialogFooter>
           )}
           {readonly && (
@@ -269,5 +284,13 @@ function EditTaskComponent() {
         )}
       </DialogContent>
     </Dialog>
+    {task && (
+      <TaskBreakdown
+        task={task}
+        open={showBreakdown}
+        onOpenChange={setShowBreakdown}
+      />
+    )}
+    </>
   );
 }

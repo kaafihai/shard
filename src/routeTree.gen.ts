@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as NewRouteImport } from './routes/new'
+import { Route as GroundingRouteImport } from './routes/grounding'
 import { Route as FocusRouteImport } from './routes/focus'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CalendarRouteImport } from './routes/calendar'
@@ -31,6 +32,11 @@ const WelcomeRoute = WelcomeRouteImport.update({
 const NewRoute = NewRouteImport.update({
   id: '/new',
   path: '/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GroundingRoute = GroundingRouteImport.update({
+  id: '/grounding',
+  path: '/grounding',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FocusRoute = FocusRouteImport.update({
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/focus': typeof FocusRoute
+  '/grounding': typeof GroundingRoute
   '/new': typeof NewRoute
   '/welcome': typeof WelcomeRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/focus': typeof FocusRoute
+  '/grounding': typeof GroundingRoute
   '/new': typeof NewRoute
   '/welcome': typeof WelcomeRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/focus': typeof FocusRoute
+  '/grounding': typeof GroundingRoute
   '/new': typeof NewRoute
   '/welcome': typeof WelcomeRoute
   '/calendar/$timestamp': typeof CalendarTimestampRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/focus'
+    | '/grounding'
     | '/new'
     | '/welcome'
     | '/calendar/$timestamp'
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/focus'
+    | '/grounding'
     | '/new'
     | '/welcome'
     | '/calendar/$timestamp'
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/dashboard'
     | '/focus'
+    | '/grounding'
     | '/new'
     | '/welcome'
     | '/calendar/$timestamp'
@@ -190,6 +202,7 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   FocusRoute: typeof FocusRoute
+  GroundingRoute: typeof GroundingRoute
   NewRoute: typeof NewRoute
   WelcomeRoute: typeof WelcomeRoute
   MoodTrackRoute: typeof MoodTrackRoute
@@ -240,6 +253,13 @@ declare module '@tanstack/react-router' {
       path: '/braindump'
       fullPath: '/braindump'
       preLoaderRoute: typeof BraindumpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/grounding': {
+      id: '/grounding'
+      path: '/grounding'
+      fullPath: '/grounding'
+      preLoaderRoute: typeof GroundingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/archive': {
@@ -313,6 +333,7 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRouteWithChildren,
   DashboardRoute: DashboardRoute,
   FocusRoute: FocusRoute,
+  GroundingRoute: GroundingRoute,
   NewRoute: NewRoute,
   WelcomeRoute: WelcomeRoute,
   MoodTrackRoute: MoodTrackRoute,
