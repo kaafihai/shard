@@ -18,7 +18,7 @@ function RootComponent() {
     if (!hasSeenWelcome && currentPath !== "/welcome") {
       navigate({ to: "/welcome" });
     }
-  }, []);
+  }, [navigate, currentPath]);
 
   return (
     <>

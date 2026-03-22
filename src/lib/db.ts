@@ -607,7 +607,7 @@ function isHabitScheduledForDate(habit: Habit, date: Date): boolean {
     return days.includes(dayOfWeek);
   }
 
-  return true;
+  return false;
 }
 
 // Backpopulate entries for a single habit from its updated_at to today

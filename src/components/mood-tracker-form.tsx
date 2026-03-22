@@ -64,6 +64,7 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.mood) return;
 
     try {
       await createMood.mutateAsync(formData);
