@@ -102,6 +102,10 @@ src/
 src-tauri/            # Rust backend + SQLite migrations
 ```
 
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on getting started, making changes, and what kinds of contributions are most helpful.
+
 ## License
 
-Private project — not currently open source.
+This project is licensed under the [MIT License](LICENSE).
