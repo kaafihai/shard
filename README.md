@@ -2,9 +2,21 @@
 
 A task and habit management app designed specifically for ADHD brains. Built with Tauri, React, and SQLite for a fast, local-first experience on desktop and mobile.
 
+## The Story
+
+My eldest child used to say "Baajit" instead of "rabbit" when they were small. It stuck with me — that word, that voice, the way a kid's pronunciation becomes its own thing entirely. Years later, I learned they have ADHD. And I was diagnosed with AUDHD as an adult.
+
+That's where the name comes from. And that's why this app exists.
+
+For years I tried every productivity app I could find. None of them worked. They were built for brains that work differently from mine — neurotypical brains. The problem was never knowing what to do. The problem was the space between knowing and doing. It's the task that feels too big to start. It's finishing one thing and getting stuck instead of moving to the next. It's the racing thoughts that won't quiet down. It's sensory overwhelm, executive dysfunction, rejection sensitivity, time blindness, and a hundred other things that neurotypical systems just don't account for.
+
+I didn't need another app that told me what to do. I needed one that understood why I couldn't.
+
+**Read the full launch note:** [Why I Built Baajit](play-store/LAUNCH_NOTE.md)
+
 ## Why Baajit?
 
-Traditional productivity apps assume a neurotypical brain. Baajit takes a different approach — it meets you where you are with energy-aware task suggestions, gentle transition prompts, sensory grounding exercises, and a rabbit mascot that grows alongside your progress.
+Baajit takes a different approach — it meets you where you are with energy-aware task suggestions, gentle transition prompts, sensory grounding exercises, and a rabbit mascot that grows alongside your progress. Every feature exists because of a specific neurodivergent challenge I've lived with.
 
 ## Features
 

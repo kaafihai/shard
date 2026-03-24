@@ -546,6 +546,20 @@ function DashboardPage() {
         </div>
       </section>
 
+      {/* About Baajit */}
+      <section className="p-4 rounded-3xl bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 space-y-2">
+        <p className="text-xs font-semibold text-orange-900 opacity-60">About Baajit</p>
+        <p className="text-sm text-orange-900 leading-relaxed mb-3">
+          Built for neurodivergent minds by Sharada. Learn the story behind every feature.
+        </p>
+        <Link
+          to="/about"
+          className="inline-block text-sm font-medium text-orange-700 hover:text-orange-900 underline"
+        >
+          Read the full story →
+        </Link>
+      </section>
+
     </div>
   );
 }
