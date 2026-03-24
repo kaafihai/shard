@@ -3,6 +3,7 @@ import { useTasks } from "@/hooks/use-tasks";
 import { useMoods } from "@/hooks/use-moods";
 import { useHabits, useAllHabitEntries } from "@/hooks/use-habits";
 import { Spinner } from "@/components/ui/spinner";
+import { GardenOverlay } from "@/components/garden-scene";
 import {
   TrendLineIcon,
   CompletedIcon,
@@ -258,7 +259,10 @@ function DashboardPage() {
   const hasActivity = activityData.some((d) => d.level > 0);
 
   return (
-    <div className="mx-auto space-y-6">
+    <div className="mx-auto space-y-6 relative">
+      {/* Garden overlay at bottom */}
+      <GardenOverlay className="z-0 opacity-60" />
+
       {/* Explainer */}
       <div className="p-4 rounded-2xl bg-primary/5 space-y-2">
         <p className="text-xs font-semibold opacity-50">How Dashboard works</p>

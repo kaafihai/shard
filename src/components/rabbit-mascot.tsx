@@ -109,31 +109,43 @@ function RabbitSVG({
       case "celebrating":
         return (
           <>
-            <path d="M35 52 Q38 48 41 52" stroke="#5a4a5a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
-            <path d="M55 52 Q58 48 61 52" stroke="#5a4a5a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            {/* Happy squint eyes */}
+            <path d="M33 50 Q37 45 41 50" stroke="#5a4a5a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            <path d="M55 50 Q59 45 63 50" stroke="#5a4a5a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            {/* Tiny sparkles near eyes */}
+            <circle cx="44" cy="44" r="1" fill="#f0d06a" opacity="0.8" />
+            <circle cx="52" cy="43" r="0.8" fill="#f0d06a" opacity="0.6" />
           </>
         );
       case "sleeping":
         return (
           <>
-            <line x1="34" y1="51" x2="42" y2="51" stroke="#5a4a5a" strokeWidth="2" strokeLinecap="round" />
-            <line x1="54" y1="51" x2="62" y2="51" stroke="#5a4a5a" strokeWidth="2" strokeLinecap="round" />
+            <path d="M34 50 Q38 52 42 50" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M54 50 Q58 52 62 50" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />
           </>
         );
       case "nudging":
         return (
           <>
-            <circle cx="38" cy="50" r="3" fill="#5a4a5a" />
-            <path d="M55 50 Q58 46 61 50" stroke="#5a4a5a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
+            {/* One big eye, one winking */}
+            <circle cx="37" cy="49" r="4.5" fill="#5a4a5a" />
+            <circle cx="39" cy="47" r="1.8" fill="white" />
+            <circle cx="37.5" cy="47.5" r="0.6" fill="white" opacity="0.5" />
+            <path d="M55 49 Q59 45 63 49" stroke="#5a4a5a" strokeWidth="2.5" fill="none" strokeLinecap="round" />
           </>
         );
       default:
         return (
           <>
-            <circle cx="38" cy="50" r="3.5" fill="#5a4a5a" />
-            <circle cx="58" cy="50" r="3.5" fill="#5a4a5a" />
-            <circle cx="39.5" cy="48.5" r="1.2" fill="white" />
-            <circle cx="59.5" cy="48.5" r="1.2" fill="white" />
+            {/* Big round sparkly eyes */}
+            <circle cx="37" cy="49" r="4.5" fill="#5a4a5a" />
+            <circle cx="59" cy="49" r="4.5" fill="#5a4a5a" />
+            {/* Main highlight */}
+            <circle cx="39" cy="47" r="1.8" fill="white" />
+            <circle cx="61" cy="47" r="1.8" fill="white" />
+            {/* Secondary highlight */}
+            <circle cx="35.5" cy="50.5" r="0.8" fill="white" opacity="0.5" />
+            <circle cx="57.5" cy="50.5" r="0.8" fill="white" opacity="0.5" />
           </>
         );
     }
@@ -142,15 +154,31 @@ function RabbitSVG({
   const getMouth = () => {
     switch (mood) {
       case "celebrating":
-        return <path d="M42 60 Q48 67 54 60" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />;
+        return (
+          <>
+            <path d="M42 59 Q48 67 54 59" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />
+            {/* Tiny bunny tooth */}
+            <rect x="46.5" y="59" width="3" height="3" rx="0.8" fill="white" stroke="#e8d4c0" strokeWidth="0.5" />
+          </>
+        );
       case "encouraging":
-        return <path d="M43 60 Q48 64 53 60" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />;
+        return (
+          <>
+            <path d="M43 59 Q48 64 53 59" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <rect x="46.5" y="59" width="3" height="2.5" rx="0.8" fill="white" stroke="#e8d4c0" strokeWidth="0.5" />
+          </>
+        );
       case "nudging":
-        return <path d="M44 60 Q48 63 52 60" stroke="#5a4a5a" strokeWidth="1.8" fill="none" strokeLinecap="round" />;
+        return <path d="M44 59 Q48 62 52 59" stroke="#5a4a5a" strokeWidth="1.8" fill="none" strokeLinecap="round" />;
       case "sleeping":
-        return <path d="M44 61 Q48 63 52 61" stroke="#5a4a5a" strokeWidth="1.5" fill="none" strokeLinecap="round" />;
+        return <path d="M44 60 Q48 62 52 60" stroke="#5a4a5a" strokeWidth="1.5" fill="none" strokeLinecap="round" />;
       default:
-        return <path d="M43 60 Q48 65 53 60" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />;
+        return (
+          <>
+            <path d="M43 59 Q48 65 53 59" stroke="#5a4a5a" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <rect x="46.5" y="59" width="3" height="2.5" rx="0.8" fill="white" stroke="#e8d4c0" strokeWidth="0.5" />
+          </>
+        );
     }
   };
 
@@ -195,33 +223,45 @@ function RabbitSVG({
     <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
       {getExtras()}
 
-      {/* Left ear */}
-      <g transform={`rotate(${earRotation - 5}, 36, 30)`}>
-        <ellipse cx="36" cy="18" rx="10" ry="20" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
-        <ellipse cx="36" cy="18" rx="5.5" ry="14" fill={fur.inner} opacity="0.5" />
+      {/* Left ear — floppy */}
+      <g transform={`rotate(${earRotation - 12}, 36, 30)`}>
+        <ellipse cx="34" cy="16" rx="11" ry="22" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
+        <ellipse cx="34" cy="16" rx="6" ry="15" fill={fur.inner} opacity="0.5" />
+        {/* Ear tip highlight */}
+        <ellipse cx="34" cy="2" rx="4" ry="3" fill="white" opacity="0.15" />
       </g>
 
-      {/* Right ear */}
-      <g transform={`rotate(${-earRotation + 5}, 60, 30)`}>
-        <ellipse cx="60" cy="18" rx="10" ry="20" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
-        <ellipse cx="60" cy="18" rx="5.5" ry="14" fill={fur.inner} opacity="0.5" />
+      {/* Right ear — slightly perked */}
+      <g transform={`rotate(${-earRotation + 6}, 62, 30)`}>
+        <ellipse cx="62" cy="16" rx="11" ry="22" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
+        <ellipse cx="62" cy="16" rx="6" ry="15" fill={fur.inner} opacity="0.5" />
+        <ellipse cx="62" cy="2" rx="4" ry="3" fill="white" opacity="0.15" />
       </g>
 
-      {/* Body */}
-      <ellipse cx="48" cy="78" rx="18" ry="14" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
+      {/* Fluffy tail */}
+      <circle cx="68" cy="82" r="6" fill={fur.main} stroke={fur.stroke} strokeWidth="1" />
+      <circle cx="70" cy="80" r="2" fill="white" opacity="0.25" />
 
-      {/* Head */}
-      <ellipse cx="48" cy="52" rx="22" ry="20" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
+      {/* Body — rounder, chubbier */}
+      <ellipse cx="48" cy="78" rx="20" ry="15" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
+      {/* Tummy highlight */}
+      <ellipse cx="48" cy="78" rx="12" ry="9" fill="white" opacity="0.12" />
 
-      {/* Cheek blush */}
-      <ellipse cx="30" cy="56" rx="5" ry="3.5" fill={fur.inner} opacity="0.45" />
-      <ellipse cx="66" cy="56" rx="5" ry="3.5" fill={fur.inner} opacity="0.45" />
+      {/* Head — rounder */}
+      <ellipse cx="48" cy="51" rx="23" ry="21" fill={fur.main} stroke={fur.stroke} strokeWidth="1.5" />
+      {/* Forehead highlight */}
+      <ellipse cx="48" cy="42" rx="10" ry="6" fill="white" opacity="0.1" />
+
+      {/* Cheek blush — bigger, rosier */}
+      <ellipse cx="29" cy="55" rx="6" ry="4" fill={fur.inner} opacity="0.55" />
+      <ellipse cx="67" cy="55" rx="6" ry="4" fill={fur.inner} opacity="0.55" />
 
       {/* Eyes */}
       {getEyes()}
 
-      {/* Nose */}
-      <ellipse cx="48" cy="56" rx="2.5" ry="2" fill="#d4a0a0" />
+      {/* Nose — cute triangle */}
+      <path d="M46 55 Q48 58 50 55 Q48 53 46 55Z" fill="#e0a0a0" />
+      <ellipse cx="48" cy="55.5" rx="2.5" ry="1.8" fill="#d4a0a0" />
 
       {/* Mouth */}
       {getMouth()}
@@ -481,15 +521,19 @@ export function getAgingMessage(daysSinceCreated: number): { message: string; mo
 }
 
 const STREAK_CELEBRATIONS: Record<number, { message: string; mood: RabbitMood }> = {
-  3: { message: "Nice start! 3 days in — keep it rolling!", mood: "encouraging" },
-  7: { message: "A FULL WEEK! You're building something great!", mood: "celebrating" },
-  14: { message: "Two weeks strong! You're unstoppable!", mood: "celebrating" },
-  21: { message: "Three weeks! This is becoming a real habit!", mood: "celebrating" },
-  30: { message: "ONE MONTH! I'm so proud of you!", mood: "celebrating" },
-  60: { message: "60 days?! You're a habit MACHINE!", mood: "celebrating" },
-  90: { message: "90 days! That's legendary dedication!", mood: "celebrating" },
-  180: { message: "Half a year! You're writing history!", mood: "celebrating" },
-  365: { message: "A WHOLE YEAR! You absolute champion!", mood: "celebrating" },
+  3: { message: "3 days! *happy ear wiggle* You're sprouting roots!", mood: "encouraging" },
+  5: { message: "5 in a row! The carrots are growing and so are you!", mood: "celebrating" },
+  7: { message: "A FULL WEEK! *bounces* I knew you had it in you!", mood: "celebrating" },
+  10: { message: "Double digits! The garden is blooming!", mood: "celebrating" },
+  14: { message: "Two weeks strong! *does a little spin* Unstoppable!", mood: "celebrating" },
+  21: { message: "Three weeks! This isn't luck — this is YOU!", mood: "celebrating" },
+  30: { message: "ONE MONTH! *tears up* I'm so proud of you!", mood: "celebrating" },
+  45: { message: "45 days! Even the butterflies are impressed!", mood: "celebrating" },
+  60: { message: "60 days?! *jaw drops* You're a force of nature!", mood: "celebrating" },
+  90: { message: "90 DAYS! That's legendary. You inspire me!", mood: "celebrating" },
+  120: { message: "120 days! The whole carrot field is cheering!", mood: "celebrating" },
+  180: { message: "Half a year! *wipes happy tears* You're writing history!", mood: "celebrating" },
+  365: { message: "A WHOLE YEAR! *throws confetti* You absolute champion!", mood: "celebrating" },
 };
 
 export function getStreakCelebration(streak: number): { message: string; mood: RabbitMood; milestone: number } | null {

@@ -6,6 +6,7 @@ import { useRabbitState } from "@/hooks/use-rabbit";
 import { addRabbitXP } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
 import type { RabbitLevel } from "@/lib/types";
+import { playCelebration, playChime } from "@/lib/sounds";
 import type { RabbitMood } from "@/components/rabbit-mascot";
 
 export const Route = createFileRoute("/focus")({
@@ -110,7 +111,7 @@ function FocusPage() {
     setMessage(getPhaseMessage(newPhase, completedSessions));
   }, [preset, completedSessions, clearTimer]);
 
-  const handleStart = () => startPhase("focus");
+  const handleStart = () => { playChime(); startPhase("focus"); };
 
   const handlePause = () => setIsPaused((p) => !p);
 
@@ -139,6 +140,7 @@ function FocusPage() {
             const newCount = completedSessions + 1;
             setCompletedSessions(newCount);
             // Award XP for completing a focus session
+            playCelebration();
             addRabbitXP(8).then(() => {
               queryClient.invalidateQueries({ queryKey: ["rabbit", "state"] });
             });

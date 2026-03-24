@@ -45,6 +45,7 @@ import {
 import { format, differenceInDays } from "date-fns";
 import type { Task, Habit, HabitEntry } from "@/lib/types";
 import { RabbitMascot, getAgingMessage, getEmptyStateMessage } from "@/components/rabbit-mascot";
+import { playChirp } from "@/lib/sounds";
 
 const DAY_LABELS: Record<string, string> = {
   SU: "Sun",
@@ -702,6 +703,7 @@ function TasksComponent() {
   const handleToggleHabit = (_habit: Habit, entry: HabitEntry | null) => {
     if (entry && entry.status !== 'completed') {
       completeHabitEntry.mutate({ entry });
+      playChirp();
       setShowTransition(true);
     }
   };
@@ -710,6 +712,7 @@ function TasksComponent() {
     const wasCompleted = !!task.completedAt;
     toggleTask.mutate(task);
     if (!wasCompleted) {
+      playChirp();
       setShowTransition(true);
     }
   };

@@ -6,6 +6,7 @@ import { useRabbitState } from "@/hooks/use-rabbit";
 import { useCreateTask } from "@/hooks/use-tasks";
 import { addRabbitXP } from "@/lib/db";
 import { useQueryClient } from "@tanstack/react-query";
+import { playWaterDrop } from "@/lib/sounds";
 import type { RabbitLevel } from "@/lib/types";
 import { v4 as uuidv4 } from "uuid";
 
@@ -122,6 +123,7 @@ function BrainDumpPage() {
       queryClient.invalidateQueries({ queryKey: ["rabbit", "state"] });
     }
 
+    playWaterDrop();
     setMode("done");
   };
 

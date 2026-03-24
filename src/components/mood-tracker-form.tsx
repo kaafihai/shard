@@ -6,6 +6,7 @@ import type { MoodInput } from "@/lib/types";
 import { useCreateMood } from "@/hooks/use-moods";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
+import { playWaterDrop } from "@/lib/sounds";
 import {
   type Icon,
   MoodGoodIcon,
@@ -68,6 +69,7 @@ export function MoodTrackerForm({ onSuccess }: MoodTrackerFormProps) {
 
     try {
       await createMood.mutateAsync(formData);
+      playWaterDrop();
       onSuccess?.();
       await navigate({ to: "/" });
     } catch (error) {
