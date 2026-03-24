@@ -54,13 +54,26 @@ Baajit takes a different approach — it meets you where you are with energy-awa
 
 ## Download & Run Baajit
 
-### Option 1: Download Pre-Built (Coming Soon)
+### Desktop (macOS, Windows, Linux)
 
-Prebuilt desktop apps for macOS, Windows, and Linux will be available in the Releases section soon. Check back here for download links.
+#### Quick Download (Coming Soon)
+Pre-built installers for macOS, Windows, and Linux will be available in the [Releases](https://github.com/kaafihai/shard/releases) section soon. Just download, install, and run.
 
-### Option 2: Build From Source
+#### Build From Source
+If you want the latest version or prefer to build it yourself, see the Getting Started section below.
 
-If you want to run the latest version or contribute to development, follow the Getting Started section below to build from source.
+### Mobile (Android & iOS)
+
+#### Android (APK Coming Soon)
+Pre-built Android APK files will be available in the [Releases](https://github.com/kaafihai/shard/releases) section. Download, install on your device, and launch Baajit.
+
+**Future:** Baajit will be available on Google Play Store for easier discovery and updates.
+
+#### iOS (Coming Soon)
+iOS version coming after Android is stable. Will be available on Apple App Store.
+
+#### Build Mobile From Source
+For developers who want to build Android or iOS versions themselves, see the Android/iOS sections under Getting Started.
 
 ## Getting Started
 
