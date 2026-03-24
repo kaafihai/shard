@@ -1048,6 +1048,17 @@ function TasksComponent() {
         </ButtonLink>
       </div>
 
+      {/* Explainer */}
+      <div className="p-4 rounded-2xl bg-primary/5 space-y-2">
+        <p className="text-xs font-semibold opacity-50">How Tasks work</p>
+        <p className="text-xs leading-relaxed opacity-40">
+          Add bite-sized tasks — things you can actually finish today. Check them
+          off as you go and your rabbit earns XP. Tasks can have due dates and
+          notes, and you can archive old ones to keep your list clean. Habits
+          show up here too, on the days they're scheduled.
+        </p>
+      </div>
+
       <Outlet />
 
       {/* Delete Task Confirmation */}
