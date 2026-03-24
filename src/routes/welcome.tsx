@@ -44,7 +44,7 @@ function WelcomePage() {
         >
           {/* === PAGE 1: Welcome with Photo === */}
           <div className="w-full shrink-0 flex flex-col items-center space-y-8">
-            {/* Hero image with overlay */}
+            {/* Hero image */}
             <div className="relative w-full max-w-md h-80 rounded-3xl overflow-hidden shadow-2xl">
               {/* Image with dark overlay for text contrast */}
               <img
@@ -53,11 +53,6 @@ function WelcomePage() {
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-
-              {/* Rabbit positioned on image */}
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 drop-shadow-lg">
-                <RabbitMascot mood="waving" size="lg" showBubble={false} animated />
-              </div>
             </div>
 
             {/* Title and tagline with warmth */}
@@ -69,17 +64,25 @@ function WelcomePage() {
               <p className="text-sm text-amber-700 opacity-80">For ADHD brains that work a little differently</p>
             </div>
 
-            {/* Warm introduction box */}
-            <div className="max-w-md space-y-4 p-8 rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50 shadow-lg">
-              <p className="text-base leading-relaxed text-gray-800 font-medium">
-                Hey there! I'm your rabbit buddy. I'm here to help you manage your day without the overwhelm — because you deserve a tool that gets how your brain actually works.
-              </p>
-              <p className="text-sm leading-relaxed text-gray-700">
-                No rigid systems. No judgment. Just gentle nudges, a little cheering, and the space to do things your own way.
-              </p>
-              <p className="text-xs text-amber-800 italic font-semibold">
-                "One nibble at a time."
-              </p>
+            {/* Warm introduction box with rabbit beside it */}
+            <div className="flex items-start gap-6 max-w-2xl px-4">
+              {/* Rabbit on the left */}
+              <div className="shrink-0 pt-2">
+                <RabbitMascot mood="waving" size="lg" showBubble={false} animated />
+              </div>
+
+              {/* Text box on the right */}
+              <div className="space-y-4 p-8 rounded-3xl bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border border-amber-200/50 shadow-lg flex-1">
+                <p className="text-base leading-relaxed text-gray-800 font-medium">
+                  Hey there! I'm your rabbit buddy. I'm here to help you manage your day without the overwhelm — because you deserve a tool that gets how your brain actually works.
+                </p>
+                <p className="text-sm leading-relaxed text-gray-700">
+                  No rigid systems. No judgment. Just gentle nudges, a little cheering, and the space to do things your own way.
+                </p>
+                <p className="text-xs text-amber-800 italic font-semibold">
+                  "One nibble at a time."
+                </p>
+              </div>
             </div>
 
             <button
