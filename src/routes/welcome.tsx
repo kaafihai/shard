@@ -72,7 +72,7 @@ function WelcomePage() {
                 wear a silly hat while doing it.
               </p>
               <p className="text-xs opacity-60 italic">
-                No pressure. No guilt. Just you and me, one hop at a time.
+                No pressure. No guilt. Just you and me, one nibble at a time.
               </p>
             </div>
 
