@@ -14,6 +14,10 @@ I didn't need another app that told me what to do. I needed one that understood 
 
 **Read the full launch note:** [Why I Built Baajit](play-store/LAUNCH_NOTE.md)
 
+## Thank You to Kaafihai
+
+This app would not exist without the vision and patience of **Sahiti, Azan, and Kaustubh** at Kaafihai. They listened to my neurodivergent rants, encouraged me to learn to code, and helped shape this idea from clay into a first cut. Thank you for creating space for this, believing in the mission, and building something that matters for neurodivergent minds. 💚
+
 ## Why Baajit?
 
 Baajit takes a different approach — it meets you where you are with energy-aware task suggestions, gentle transition prompts, sensory grounding exercises, and a rabbit mascot that grows alongside your progress. Every feature exists because of a specific neurodivergent challenge I've lived with.

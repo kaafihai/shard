@@ -6,6 +6,10 @@ My eldest child used to say "Baajit" instead of "rabbit" when they were small. I
 
 That's where the name comes from. And that's why this app exists.
 
+## Thank You to Kaafihai
+
+This app would not exist without the vision and patience of Sahiti, Azan, and Kaustubh at Kaafihai. They listened to my neurodivergent rants, encouraged me to learn to code, and helped shape this idea from clay into a first cut. Without the hard work of all of us, Baajit could not have happened. Thank you for creating space for this, believing in the mission, and building something that matters for neurodivergent minds.
+
 ## The Problem Nobody Was Solving
 
 I have ADHD. I'm also autistic. If you're reading this, there's a good chance you're neurodivergent too — or you love someone who is.

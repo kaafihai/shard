@@ -33,6 +33,17 @@ export default function About() {
           </p>
         </section>
 
+        {/* Thank You */}
+        <section className="mb-10 p-6 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-lg border-l-4 border-emerald-400">
+          <h2 className="text-2xl font-bold text-emerald-900 mb-4">Thank You to Kaafihai</h2>
+          <p className="text-emerald-900 leading-relaxed mb-3">
+            This app would not exist without the vision and patience of <strong>Sahiti, Azan, and Kaustubh</strong> at Kaafihai.
+          </p>
+          <p className="text-emerald-900 leading-relaxed">
+            They listened to my neurodivergent rants, encouraged me to learn to code, and helped shape this idea from clay into a first cut. Without the hard work of all of us, Baajit could not have happened. Thank you for creating space for this, believing in the mission, and building something that matters for neurodivergent minds. 💚
+          </p>
+        </section>
+
         {/* The Problem */}
         <section className="mb-10">
           <h2 className="text-2xl font-bold text-amber-900 mb-4">The Problem Nobody Was Solving</h2>
