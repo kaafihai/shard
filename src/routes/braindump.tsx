@@ -215,8 +215,8 @@ function BrainDumpPage() {
             <p className="text-xs leading-relaxed opacity-40">
               Type whatever is on your mind — one thought per line, or all at once.
               When you're done dumping, tap Sort to categorize each thought as a Task,
-              a Note, or something for Later. Tasks get added to your task list automatically.
-              Notes and Later items are just for clearing your head — they won't be saved anywhere,
+              a Dump, or something for Later. Tasks get added to your task list automatically.
+              Dumps and Later items are just for clearing your head — they won't be saved anywhere,
               and that's the point.
             </p>
           </div>
@@ -254,8 +254,8 @@ function BrainDumpPage() {
                     onClick={() => handleCategorize(item.id, "task")}
                   />
                   <CategoryButton
-                    label="Note"
-                    emoji="📝"
+                    label="Dump"
+                    emoji="🗑️"
                     active={item.category === "note"}
                     color="bg-primary/20 text-primary"
                     onClick={() => handleCategorize(item.id, "note")}
@@ -277,7 +277,7 @@ function BrainDumpPage() {
             {categorizedCount > 0 && (
               <div className="flex justify-center gap-4 text-sm">
                 {taskCount > 0 && <span className="text-success font-medium">{taskCount} task{taskCount !== 1 ? "s" : ""}</span>}
-                {noteCount > 0 && <span className="text-primary font-medium">{noteCount} note{noteCount !== 1 ? "s" : ""}</span>}
+                {noteCount > 0 && <span className="text-primary font-medium">{noteCount} dump{noteCount !== 1 ? "s" : ""}</span>}
                 {laterCount > 0 && <span className="opacity-60">{laterCount} for later</span>}
               </div>
             )}
