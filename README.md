@@ -52,6 +52,16 @@ Baajit takes a different approach — it meets you where you are with energy-awa
 - **Icons**: Phosphor Icons
 - **Build**: Vite 7
 
+## Download & Run Baajit
+
+### Option 1: Download Pre-Built (Coming Soon)
+
+Prebuilt desktop apps for macOS, Windows, and Linux will be available in the Releases section soon. Check back here for download links.
+
+### Option 2: Build From Source
+
+If you want to run the latest version or contribute to development, follow the Getting Started section below to build from source.
+
 ## Getting Started
 
 ### Prerequisites
@@ -61,20 +71,38 @@ Baajit takes a different approach — it meets you where you are with energy-awa
 - [Rust](https://www.rust-lang.org/tools/install)
 - Tauri v2 system dependencies ([see Tauri docs](https://v2.tauri.app/start/prerequisites/))
 
-### Development
+### Build & Run From Source
+
+**Clone the repository:**
+
+```shell
+git clone https://github.com/kaafihai/shard.git
+cd shard
+```
+
+**Install dependencies:**
 
 ```shell
 pnpm install
+```
+
+**Run in development mode:**
+
+```shell
 pnpm tauri dev
 ```
 
-This opens the app in a native desktop window. The app requires the Tauri shell to function — it won't work in a plain browser tab since it relies on native SQLite access.
+This opens Baajit in a native desktop window. The app requires the Tauri shell to function — it won't work in a browser tab since it relies on native SQLite access for local data storage.
 
-### Build
+### Create a Standalone Executable
+
+To build a standalone app for your system:
 
 ```shell
 pnpm tauri build
 ```
+
+The built app will be in `src-tauri/target/release/bundle/`. You can then run it directly from there or install it on your system.
 
 ### Android
 
