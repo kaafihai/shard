@@ -503,6 +503,8 @@ function TasksComponent() {
     setShowEnergyCheckIn(false);
   }, []);
 
+  const handleDismissTransition = useCallback(() => setShowTransition(false), []);
+
   const filterLabels = {
     active: "Today",
     completed: "Completed",
@@ -1087,7 +1089,7 @@ function TasksComponent() {
       {/* Transition prompt after completing a task/habit */}
       <TransitionPrompt
         show={showTransition}
-        onDismiss={useCallback(() => setShowTransition(false), [])}
+        onDismiss={handleDismissTransition}
       />
     </div>
   );
