@@ -1,10 +1,10 @@
-# Nibble
+# Baajit
 
 A task and habit management app designed specifically for ADHD brains. Built with Tauri, React, and SQLite for a fast, local-first experience on desktop and mobile.
 
-## Why Nibble?
+## Why Baajit?
 
-Traditional productivity apps assume a neurotypical brain. Nibble takes a different approach — it meets you where you are with energy-aware task suggestions, gentle transition prompts, sensory grounding exercises, and a rabbit mascot that grows alongside your progress.
+Traditional productivity apps assume a neurotypical brain. Baajit takes a different approach — it meets you where you are with energy-aware task suggestions, gentle transition prompts, sensory grounding exercises, and a rabbit mascot that grows alongside your progress.
 
 ## Features
 

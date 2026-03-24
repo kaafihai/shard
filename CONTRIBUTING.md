@@ -1,6 +1,6 @@
-# Contributing to Nibble
+# Contributing to Baajit
 
-Thanks for your interest in contributing to Nibble! This app is built to help people with ADHD manage tasks, habits, and energy in a way that works with their brain. Contributions that keep that mission in mind are very welcome.
+Thanks for your interest in contributing to Baajit! This app is built to help people with ADHD manage tasks, habits, and energy in a way that works with their brain. Contributions that keep that mission in mind are very welcome.
 
 ## Getting Started
 
@@ -16,7 +16,7 @@ You'll need Node.js (v18+), pnpm, Rust, and the Tauri v2 system dependencies ins
 1. Create a branch from `main` with a descriptive name (e.g., `fix/streak-calculation` or `feat/dark-mode`)
 2. Make your changes
 3. Run `npx tsc --noEmit` to check for TypeScript errors
-4. Test your changes in the Tauri desktop window (not the browser — Nibble requires the native shell for SQLite access)
+4. Test your changes in the Tauri desktop window (not the browser — Baajit requires the native shell for SQLite access)
 5. Commit with a clear message describing what changed and why
 6. Open a pull request against `main`
 
@@ -33,7 +33,7 @@ Here are some areas where help is especially welcome:
 
 ## Guidelines
 
-- Keep the ADHD-friendly design philosophy in mind. Nibble should feel calm, not overwhelming.
+- Keep the ADHD-friendly design philosophy in mind. Baajit should feel calm, not overwhelming.
 - New features should be simple to use without instructions. If it needs a tutorial, it might be too complex.
 - The rabbit companion is a core part of the experience — treat it with care.
 - All data must stay local. Do not add analytics, telemetry, cloud sync, or any feature that sends data off-device.

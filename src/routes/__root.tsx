@@ -14,7 +14,7 @@ function RootComponent() {
   const isWelcomePage = currentPath === "/welcome";
 
   useEffect(() => {
-    const hasSeenWelcome = localStorage.getItem("nibble_welcomed");
+    const hasSeenWelcome = localStorage.getItem("baajit_welcomed");
     if (!hasSeenWelcome && currentPath !== "/welcome") {
       navigate({ to: "/welcome" });
     }
@@ -32,7 +32,7 @@ function RootComponent() {
                   to="/"
                   className="flex items-center gap-2 px-2 text-2xl font-black hover:opacity-80"
                 >
-                  nibble
+                  baajit
                 </Link>
               </div>
             </div>

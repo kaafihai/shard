@@ -30,7 +30,7 @@ const PRESETS: TimerPreset[] = [
 
 const FOCUS_MESSAGES: string[] = [
   "I'm right here with you. You've got this!",
-  "One nibble at a time... you're doing great.",
+  "One hop at a time... you're doing great.",
   "Shh, we're in the zone together.",
   "You're focused and I'm so proud!",
   "Just you and me — let's crush this.",

@@ -227,6 +227,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/grounding': {
+      id: '/grounding'
+      path: '/grounding'
+      fullPath: '/grounding'
+      preLoaderRoute: typeof GroundingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/focus': {
       id: '/focus'
       path: '/focus'
@@ -253,13 +260,6 @@ declare module '@tanstack/react-router' {
       path: '/braindump'
       fullPath: '/braindump'
       preLoaderRoute: typeof BraindumpRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/grounding': {
-      id: '/grounding'
-      path: '/grounding'
-      fullPath: '/grounding'
-      preLoaderRoute: typeof GroundingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/archive': {

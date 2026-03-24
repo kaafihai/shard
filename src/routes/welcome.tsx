@@ -17,7 +17,7 @@ export const Route = createFileRoute("/welcome")({
 const FLOW_STEPS = [
   { icon: SmileyIcon, label: "Log Mood", desc: "How are you feeling?", color: "#e8a07a" },
   { icon: BatteryChargingIcon, label: "Check Energy", desc: "What's your battery at?", color: "#8ab878" },
-  { icon: CheckCircleIcon, label: "Nibble Tasks", desc: "Bite-sized, your pace", color: "#7aaccc" },
+  { icon: CheckCircleIcon, label: "Baajit Tasks", desc: "Bite-sized, your pace", color: "#7aaccc" },
   { icon: TimerIcon, label: "Focus Timer", desc: "Pick a time, press go", color: "#c8a0d8" },
   { icon: BrainIcon, label: "Brain Dump", desc: "Empty your head safely", color: "#d8a8a0" },
   { icon: HouseIcon, label: "Dashboard", desc: "Your rabbit cheers you on", color: "#c8b888" },
@@ -28,7 +28,7 @@ function WelcomePage() {
   const [page, setPage] = useState(0);
 
   const handleStart = useCallback(() => {
-    localStorage.setItem("nibble_welcomed", "true");
+    localStorage.setItem("baajit_welcomed", "true");
     navigate({ to: "/" });
   }, [navigate]);
 
@@ -53,7 +53,7 @@ function WelcomePage() {
             </div>
 
             <div className="space-y-1">
-              <h1 className="text-4xl font-black tracking-tight">nibble</h1>
+              <h1 className="text-4xl font-black tracking-tight">baajit</h1>
               <p className="text-sm opacity-50 font-medium">your little life companion</p>
             </div>
 
@@ -72,7 +72,7 @@ function WelcomePage() {
                 wear a silly hat while doing it.
               </p>
               <p className="text-xs opacity-60 italic">
-                No pressure. No guilt. Just you and me, one nibble at a time.
+                No pressure. No guilt. Just you and me, one hop at a time.
               </p>
             </div>
 
@@ -141,7 +141,7 @@ function WelcomePage() {
             </div>
 
             <p className="text-xs opacity-40 italic max-w-[250px]">
-              Skip any step, do them in any order. Nibble adapts to you, not the other way around.
+              Skip any step, do them in any order. Baajit adapts to you, not the other way around.
             </p>
 
             <div className="flex gap-3">

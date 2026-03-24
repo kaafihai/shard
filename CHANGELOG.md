@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Nibble are documented here.
+All notable changes to Baajit are documented here.
 
 ---
 
@@ -29,7 +29,7 @@ All notable changes to Nibble are documented here.
 
 ## v1.0.0 — First Release (March 2026)
 
-Nibble is a task and habit management app built specifically for ADHD brains. Local-first, privacy-respecting, and designed to work with the way your brain actually works — not against it.
+Baajit is a task and habit management app built specifically for ADHD brains. Local-first, privacy-respecting, and designed to work with the way your brain actually works — not against it.
 
 ### Features
 
@@ -55,7 +55,7 @@ Nibble is a task and habit management app built specifically for ADHD brains. Lo
 
 11. **Calendar View** — Day and week views showing tasks, habits, and mood entries together. Tap any day to see what happened or what's coming up.
 
-12. **Welcome Experience** — First-launch onboarding with an illustrated carrot field scene introducing Nibble's approach and your rabbit companion.
+12. **Welcome Experience** — First-launch onboarding with an illustrated carrot field scene introducing Baajit's approach and your rabbit companion.
 
 ### Technical
 
@@ -86,7 +86,7 @@ Nibble is a task and habit management app built specifically for ADHD brains. Lo
 - Warm color palette with illustrated welcome page
 - Mood tracker with aging reminders
 - Streak rewards for habit consistency
-- App renamed from SharD to Nibble
+- App renamed from SharD to Nibble, later to Baajit
 
 ### Foundation (February–March 2026)
 

@@ -465,7 +465,7 @@ function TasksComponent() {
 
   // Check if energy was already logged today
   useEffect(() => {
-    const stored = localStorage.getItem("nibble_energy");
+    const stored = localStorage.getItem("baajit_energy");
     if (stored) {
       try {
         const { date, energy } = JSON.parse(stored);
@@ -480,7 +480,7 @@ function TasksComponent() {
   // Show energy check-in after mood is logged
   useEffect(() => {
     if (todaysMood && !todayEnergy && !isMoodLoading && !isMoodFetching) {
-      const stored = localStorage.getItem("nibble_energy");
+      const stored = localStorage.getItem("baajit_energy");
       if (stored) {
         try {
           const { date } = JSON.parse(stored);
@@ -493,12 +493,12 @@ function TasksComponent() {
 
   const handleEnergyComplete = useCallback((energy: EnergyLevel) => {
     setTodayEnergy(energy);
-    localStorage.setItem("nibble_energy", JSON.stringify({ date: new Date().toDateString(), energy }));
+    localStorage.setItem("baajit_energy", JSON.stringify({ date: new Date().toDateString(), energy }));
     setShowEnergyCheckIn(false);
   }, []);
 
   const handleEnergySkip = useCallback(() => {
-    localStorage.setItem("nibble_energy", JSON.stringify({ date: new Date().toDateString(), energy: "moderate" }));
+    localStorage.setItem("baajit_energy", JSON.stringify({ date: new Date().toDateString(), energy: "moderate" }));
     setTodayEnergy("moderate");
     setShowEnergyCheckIn(false);
   }, []);
