@@ -4,7 +4,7 @@ A task and habit management app designed specifically for ADHD brains. Built wit
 
 ## The Story
 
-My eldest child used to say "Baajit" instead of "rabbit" when they were small. It stuck with me — that word, that voice, the way a kid's pronunciation becomes its own thing entirely. Years later, I learned they have ADHD. And I was diagnosed with AUDHD as an adult.
+My eldest child used to say "Baajit" instead of "rabbit" when they were a baby. Fully smart at two; and quirks that I never got fully as a young mom. It stuck with me — that word, that voice, the way a kid's pronunciation becomes its own thing entirely. Years later, I learned they have ADHD. And I was diagnosed with AUDHD as an adult.
 
 That's where the name comes from. And that's why this app exists.
 
@@ -14,9 +14,9 @@ I didn't need another app that told me what to do. I needed one that understood 
 
 **Read the full launch note:** [Why I Built Baajit](play-store/LAUNCH_NOTE.md)
 
-## Thank You to Kaafihai
+## Thank You to Kaafihai Founders
 
-This app would not exist without the vision and patience of **Sahiti, Azan, and Kaustubh** at Kaafihai. They listened to my neurodivergent rants, encouraged me to learn to code, and helped shape this idea from clay into a first cut. Thank you for creating space for this, believing in the mission, and building something that matters for neurodivergent minds. 💚
+This app would not exist without the vision and patience of **Sahiti [itihas], Azan, and Kaustubh** at Kaafihai. They listened to my neurodivergent rants, encouraged me to learn to code, and helped shape this idea from clay into a first cut. Thank you for creating space for this, believing in the mission, and building something that matters for neurodivergent minds. 💚
 
 ## Why Baajit?
 
