@@ -68,8 +68,15 @@ If you want the latest version or prefer to build it yourself, see the Getting S
 
 ### Mobile (Android & iOS)
 
-#### Android (APK Coming Soon)
-Pre-built Android APK files will be available in the [Releases](https://github.com/kaafihai/shard/releases) section. Download, install on your device, and launch Baajit.
+#### Android (v1.0.0)
+[⬇️ Download Baajit for Android](https://github.com/kaafihai/shard/releases/download/v1.0.0/app-universal-release-unsigned.apk) (54.8 MB)
+
+To install on your device:
+1. Download the APK file
+2. Transfer to your Android device or download directly on it
+3. Open Settings → Security → Enable "Unknown Sources"
+4. Open the APK file and tap "Install"
+5. Launch Baajit!
 
 **Future:** Baajit will be available on Google Play Store for easier discovery and updates.
 
