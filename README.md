@@ -56,8 +56,12 @@ Baajit takes a different approach — it meets you where you are with energy-awa
 
 ### Desktop (macOS, Windows, Linux)
 
-#### Quick Download (Coming Soon)
-Pre-built installers for macOS, Windows, and Linux will be available in the [Releases](https://github.com/kaafihai/shard/releases) section soon. Just download, install, and run.
+#### Quick Download
+
+**macOS (v1.0.0):**
+[⬇️ Download Baajit for Mac](https://github.com/kaafihai/shard/releases/download/v1.0.0/baajit_1.0.0_aarch64.dmg) (38 MB)
+
+Windows and Linux builds coming soon. Check the [Releases](https://github.com/kaafihai/shard/releases) page for updates.
 
 #### Build From Source
 If you want the latest version or prefer to build it yourself, see the Getting Started section below.
