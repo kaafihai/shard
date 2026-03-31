@@ -65,7 +65,7 @@ jobs:
           ls -lh keystore.jks
 
       - name: Build APK
-        run: pnpm tauri android build --release
+        run: pnpm tauri android build
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/26.1.10909125
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
