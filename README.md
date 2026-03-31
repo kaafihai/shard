@@ -146,11 +146,18 @@ The built app will be in `src-tauri/target/release/bundle/`. You can then run it
 **One-time setup:**
 
 ```shell
-keytool -genkey -v -keystore ./src-tauri/gen/android/local-keystore.jks \
-  -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+# set these:
+keyAlias=upload
+password=upload-password
+keystorePath="$(pwd)/local-keystore.jks"
 
-cp src-tauri/gen/android/key.properties{.sample,}
-# Edit password & keyAlias fields in key.properties
+# then run:
+keytool -genkey -v -keystore $keystorePath \
+  -keyalg RSA -keysize 2048 -validity 10000 -alias $keyAlias
+
+echo "keyAlias=$keyAlias" > keystore.properties
+echo "password=$password" >> keystore.properties
+echo "storeFile=$keystorePath" >> keystore.properties
 ```
 
 **Build:**
