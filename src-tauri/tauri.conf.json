@@ -34,8 +34,5 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ]
-  },
-  "android": {
-    "useBootClasspath": false
   }
 }
