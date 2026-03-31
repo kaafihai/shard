@@ -59,32 +59,18 @@ jobs:
           ndk-version: 26.1.10909125
           cmake-version: '3.22.1'
 
-      - name: Decode Keystore
+      - name: setup Android signing
         run: |
-          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | tr -d '\n' | base64 -d > baajit.keystore
-          ls -lh baajit.keystore
-          file baajit.keystore
+          cd src-tauri/gen/android
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" > keystore.properties
+          echo "password=${{ secrets.ANDROID_KEY_PASSWORD }}" >> keystore.properties
+          base64 -d <<< "${{ secrets.ANDROID_KEY_BASE64 }}" > $RUNNER_TEMP/keystore.jks
+          echo "storeFile=$RUNNER_TEMP/keystore.jks" >> keystore.properties
 
       - name: Build APK
         run: pnpm tauri android build
         env:
           ANDROID_NDK_HOME: ${{ env.ANDROID_SDK_ROOT }}/ndk/26.1.10909125
-
-      - name: Sign APK with jarsigner
-        run: |
-          # Find the unsigned APK
-          UNSIGNED_APK=$(find . -name "*-unsigned.apk" -type f | grep -v nibble | head -1)
-          echo "Found unsigned APK: $UNSIGNED_APK"
-
-          # Sign it
-          jarsigner -verbose -sigalg SHA1withRSA -digestalg SHA1 \
-            -keystore baajit.keystore \
-            -storepass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            -keypass "${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" \
-            "$UNSIGNED_APK" baajit
-
-          echo "APK signed successfully"
-          ls -lh "$UNSIGNED_APK"
 
       - name: Find and Copy APK
         run: |
